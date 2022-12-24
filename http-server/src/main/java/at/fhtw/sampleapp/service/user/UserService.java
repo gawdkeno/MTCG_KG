@@ -23,7 +23,7 @@ public class UserService implements Service {
 //            //return this.weatherController.getWeather();
 //            return this.userController.getWeatherPerRepository(); }
          if (request.getMethod() == Method.POST) {
-            return this.userController.postUser(request);
+            return this.userController.addUser(request);
         }
         return new Response(
                 HttpStatus.BAD_REQUEST,

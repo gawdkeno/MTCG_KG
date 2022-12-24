@@ -8,28 +8,29 @@ public class User {
 
     }
     @JsonAlias({"Username"})
-    private String userId;
+    private String player_username;
     @JsonAlias({"Password"})
-    private String username;
+    private String player_password;
 
-    public User(String userId, String username) {
-        this.userId = userId;
-        this.username = username;
+    public String getPlayer_username() {
+        return player_username;
     }
 
-    public String getUserId() {
-        return userId;
+    public void setPlayer_username(String player_username) {
+        this.player_username = player_username;
     }
 
-    public String getUsername() {
-        return username;
+    public String getPlayer_password() {
+        return player_password;
     }
 
-    public void setUserId(String userId) {
-        this.userId = userId;
+    public void setPlayer_password(String player_password) {
+        this.player_password = player_password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public User(String username, String password) {
+        this.player_username = username;
+        this.player_password = password;
     }
+
 }

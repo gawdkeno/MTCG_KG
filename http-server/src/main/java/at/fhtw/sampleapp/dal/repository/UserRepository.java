@@ -2,6 +2,7 @@ package at.fhtw.sampleapp.dal.repository;
 
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
+import at.fhtw.sampleapp.model.User;
 import at.fhtw.sampleapp.model.Weather;
 
 import java.sql.PreparedStatement;
@@ -18,17 +19,19 @@ public class UserRepository {
         this.unitOfWork = unitOfWork;
     }
 
-    public void postUser(String username, String userPassword) {
+    public UserRepository() {
+
+    }
+
+    public void postUser(User user, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
-                     this.unitOfWork.prepareStatement("""
-                    INSERT INTO users VALUES (DEFAULT, ?,?)
+                     unitOfWork.prepareStatement("""
+                    INSERT INTO player VALUES (DEFAULT, ?,?)
                 """))
         {
-            ResultSet resultSet = preparedStatement.executeQuery();
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, userPassword);
-            preparedStatement.execute();
-            unitOfWork.commitTransaction();
+            preparedStatement.setString(1, user.getPlayer_username());
+            preparedStatement.setString(2, user.getPlayer_password());
+            preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("postUser() geht nicht");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);

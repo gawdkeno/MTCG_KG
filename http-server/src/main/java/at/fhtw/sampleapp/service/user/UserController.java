@@ -14,11 +14,17 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 public class UserController extends Controller {
     private UserRepository userRepository;
 
-    public Response postUser(Request request) {
+    public UserController() {
+        this.userRepository = new UserRepository();
+    }
+
+    public Response addUser(Request request) {
 
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
-            //UnitOfWork unitOfWork =
+            UnitOfWork unitOfWork = new UnitOfWork();
+            this.userRepository.postUser(user, unitOfWork);
+            unitOfWork.commitTransaction();
             return new Response(
                     HttpStatus.CREATED,
                     ContentType.JSON,
