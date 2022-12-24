@@ -18,7 +18,7 @@ public class UserController extends Controller {
 
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
-            UnitOfWork unitOfWork =
+            //UnitOfWork unitOfWork =
             return new Response(
                     HttpStatus.CREATED,
                     ContentType.JSON,
