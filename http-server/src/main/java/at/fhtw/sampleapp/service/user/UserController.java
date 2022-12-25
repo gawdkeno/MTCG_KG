@@ -20,18 +20,42 @@ public class UserController extends Controller {
 
     public Response addUser(Request request) {
 
+        UnitOfWork unitOfWork = null;
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
-            UnitOfWork unitOfWork = new UnitOfWork();
-            this.userRepository.postUser(user, unitOfWork);
-            unitOfWork.commitTransaction();
-            return new Response(
-                    HttpStatus.CREATED,
-                    ContentType.JSON,
-                    "{ \"message\": \"Success\" }"
-            );
+            unitOfWork = new UnitOfWork();
+            HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
+
+            switch (httpStatus) {
+                case CREATED -> {
+                    unitOfWork.commitTransaction();
+                    return new Response(
+                            HttpStatus.CREATED,
+                            ContentType.JSON,
+                            "{ \"message\": \"Success\" }"
+                    );
+                }
+                case CONFLICT -> {
+                    unitOfWork.rollbackTransaction();
+                    return new Response(
+                            HttpStatus.CONFLICT,
+                            ContentType.JSON,
+                            "{ \"message\": \"Failed, user already exists\" }"
+                    );
+                }
+                default -> {
+                    unitOfWork.rollbackTransaction();
+                    return new Response(
+                            HttpStatus.INTERNAL_SERVER_ERROR,
+                            ContentType.JSON,
+                            "{ \"message\": \"Something went wrong\" }"
+                    );
+                }
+            }
+
         } catch (JsonProcessingException e) {
             e.printStackTrace();
+            unitOfWork.rollbackTransaction();
             return new Response(
                     HttpStatus.BAD_REQUEST,
                     ContentType.JSON,

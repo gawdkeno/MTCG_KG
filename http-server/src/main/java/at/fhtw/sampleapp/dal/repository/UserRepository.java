@@ -1,5 +1,7 @@
 package at.fhtw.sampleapp.dal.repository;
 
+import at.fhtw.httpserver.http.HttpStatus;
+import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.model.User;
@@ -23,7 +25,25 @@ public class UserRepository {
 
     }
 
-    public void postUser(User user, UnitOfWork unitOfWork) {
+    public HttpStatus postUser(User user, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT * FROM player
+                """)) {
+            ResultSet resultSet = preparedStatement.executeQuery();
+            String usernameCounter;
+            while (resultSet.next())
+            {
+                usernameCounter =  resultSet.getString("player_username");
+                if(usernameCounter.equals(user.getPlayer_username()))
+                {
+                    return HttpStatus.CONFLICT;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("postUser() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     INSERT INTO player VALUES (DEFAULT, ?,?)
@@ -31,10 +51,15 @@ public class UserRepository {
         {
             preparedStatement.setString(1, user.getPlayer_username());
             preparedStatement.setString(2, user.getPlayer_password());
+
             preparedStatement.executeUpdate();
+
+            return HttpStatus.CREATED;
+
         } catch (SQLException e) {
-            System.err.println("postUser() geht nicht");
+            System.err.println("postUser() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
+
     }
 }
