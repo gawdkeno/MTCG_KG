@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.user;
+package at.fhtw.sampleapp.service.session;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;
@@ -6,40 +6,37 @@ import at.fhtw.httpserver.server.Request;
 import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.controller.Controller;
 import at.fhtw.sampleapp.dal.UnitOfWork;
-import at.fhtw.sampleapp.dal.repository.UserRepository;
+import at.fhtw.sampleapp.dal.repository.SessionRepository;
 import at.fhtw.sampleapp.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
+public class SessionController extends Controller {
 
-public class UserController extends Controller {
-    private final UserRepository userRepository;
-
-    public UserController() {
-        this.userRepository = new UserRepository();
+    private final SessionRepository sessionRepository;
+    public SessionController() {
+        this.sessionRepository = new SessionRepository();
     }
-
-    public Response addUser(Request request) {
-        UnitOfWork unitOfWork = null;
+    public Response loginUser(Request request) {
+        UnitOfWork unitOfWork = null; // = null
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
             unitOfWork = new UnitOfWork();
-            HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
+            HttpStatus httpStatus = this.sessionRepository.loginUser(user, unitOfWork);
 
             switch (httpStatus) {
-                case CREATED -> {
+                case OK -> {
                     unitOfWork.commitTransaction();
                     return new Response(
-                            HttpStatus.CREATED,
+                            HttpStatus.OK,
                             ContentType.JSON,
                             "{ \"message\": \"Success\" }"
                     );
                 }
-                case CONFLICT -> {
+                case UNAUTHORIZED -> {
                     unitOfWork.rollbackTransaction();
                     return new Response(
-                            HttpStatus.CONFLICT,
+                            HttpStatus.UNAUTHORIZED,
                             ContentType.JSON,
-                            "{ \"message\": \"Failed, user already exists\" }"
+                            "{ \"message\": \"Invalid username or password\" }"
                     );
                 }
                 default -> {
@@ -51,16 +48,8 @@ public class UserController extends Controller {
                     );
                 }
             }
-
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            unitOfWork.rollbackTransaction();
-            return new Response(
-                    HttpStatus.BAD_REQUEST,
-                    ContentType.JSON,
-                    "{ \"message\" : \"Username not available\" }"
-            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
     }
 }

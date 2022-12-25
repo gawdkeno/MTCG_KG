@@ -16,13 +16,7 @@ public class UserService implements Service {
 
     @Override
     public Response handleRequest(Request request) {
-//        if (request.getMethod() == Method.GET &&
-//                request.getPathParts().size() > 1) {
-//            //return this.userController.getWeather(request.getPathParts().get(1));
-//        } else if (request.getMethod() == Method.GET) {
-//            //return this.weatherController.getWeather();
-//            return this.userController.getWeatherPerRepository(); }
-         if (request.getMethod() == Method.POST) {
+        if (request.getMethod() == Method.POST) {
             return this.userController.addUser(request);
         }
         return new Response(
