@@ -16,7 +16,7 @@ public class SessionController extends Controller {
         this.sessionRepository = new SessionRepository();
     }
     public Response loginUser(Request request) {
-        UnitOfWork unitOfWork = null; // = null
+        UnitOfWork unitOfWork = null;
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
             unitOfWork = new UnitOfWork();

@@ -46,11 +46,15 @@ public class UserRepository {
         }
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    INSERT INTO player VALUES (DEFAULT, ?,?)
+                    INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?)
                 """))
         {
             preparedStatement.setString(1, user.getPlayer_username());
             preparedStatement.setString(2, user.getPlayer_password());
+            preparedStatement.setInt(3, user.getPlayer_coins());
+            preparedStatement.setString(4, user.getPlayer_bio());
+            preparedStatement.setString(5, user.getPlayer_image());
+            preparedStatement.setString(6, user.getPlayer_name());
 
             preparedStatement.executeUpdate();
 

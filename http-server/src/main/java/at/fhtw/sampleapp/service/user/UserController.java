@@ -22,6 +22,12 @@ public class UserController extends Controller {
         UnitOfWork unitOfWork = null;
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
+            user.setPlayer_coins(20);
+            user.setPlayer_image(":-)");
+            user.setPlayer_bio("MTCG Player");
+            user.setPlayer_name("Sur/Prename");
+            //user.setPlayer_token("mtcgToken");
+
             unitOfWork = new UnitOfWork();
             HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
 
