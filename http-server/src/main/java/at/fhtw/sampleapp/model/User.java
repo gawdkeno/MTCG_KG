@@ -26,7 +26,7 @@ public class User {
     private String player_token;
 
 
-    public User(int player_id, String player_username, String player_password, int player_coins, String player_bio, String player_image, String player_name) {
+    public User(int player_id, String player_username, String player_password, int player_coins, String player_bio, String player_image, String player_name, String player_token) {
         this.player_id = player_id;
         this.player_username = player_username;
         this.player_password = player_password;
@@ -34,7 +34,8 @@ public class User {
         this.player_bio = player_bio;
         this.player_image = player_image;
         this.player_name = player_name;
-    }
+        this.player_token = player_token;
+}
 
     public String getPlayer_username() {
         return player_username;

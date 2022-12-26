@@ -14,7 +14,6 @@ public enum DatabaseManager {
         String pw = "swe1pw";
 
         try {
-            System.out.println("We are here");
             return DriverManager.getConnection(
                     url,
                     user,

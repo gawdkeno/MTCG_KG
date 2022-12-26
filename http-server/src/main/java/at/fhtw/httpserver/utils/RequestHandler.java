@@ -37,6 +37,7 @@ public class RequestHandler implements Runnable {
                     "[]"
                 );
             } else {
+                request.checkAuth();
                 response = this.router.resolve(request.getServiceRoute()).handleRequest(request);
             }
             printWriter.write(response.get());

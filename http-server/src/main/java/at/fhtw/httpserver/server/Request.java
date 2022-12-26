@@ -13,6 +13,7 @@ public class Request {
     private String params;
     private HeaderMap headerMap =  new HeaderMap();
     private String body;
+    private String currentToken;
 
     public String getServiceRoute(){
         if (this.pathParts == null ||
@@ -100,5 +101,13 @@ public class Request {
 
     public void setPathParts(List<String> pathParts) {
         this.pathParts = pathParts;
+    }
+
+    public String getCurrentToken() {
+        return currentToken;
+    }
+
+    public void checkAuth() {
+        this.currentToken = this.headerMap.getHeader("Authorization");
     }
 }

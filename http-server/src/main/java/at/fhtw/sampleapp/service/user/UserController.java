@@ -26,7 +26,7 @@ public class UserController extends Controller {
             user.setPlayer_image(":-)");
             user.setPlayer_bio("MTCG Player");
             user.setPlayer_name("Sur/Prename");
-            //user.setPlayer_token("mtcgToken");
+            user.setPlayer_token("Basic "  + user.getPlayer_username() + "-mtcgToken");
 
             unitOfWork = new UnitOfWork();
             HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
