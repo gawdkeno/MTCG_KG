@@ -10,8 +10,7 @@ public class Pckg {
     @JsonAlias({"Price"})
     private int package_price;
 
-    public Pckg(int package_id, String package_name, int package_price) {
-        this.package_id = package_id;
+    public Pckg(String package_name, int package_price) {
         this.package_name = package_name;
         this.package_price = package_price;
     }
