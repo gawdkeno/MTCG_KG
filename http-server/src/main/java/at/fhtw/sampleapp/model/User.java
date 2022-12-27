@@ -8,7 +8,6 @@ public class User {
     public User() {
 
     }
-    @JsonAlias({"Id"})
     private int player_id;
     @JsonAlias({"Username"})
     private String player_username;
@@ -18,9 +17,7 @@ public class User {
     private int player_coins;
     @JsonAlias({"Bio"})
     private String player_bio;
-    @JsonAlias({"Image"})
     private String player_image;
-    @JsonAlias({"Name"})
     private String player_name;
     @JsonAlias({"Token"})
     private String player_token;

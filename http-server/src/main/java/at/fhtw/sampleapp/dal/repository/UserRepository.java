@@ -57,6 +57,7 @@ public class UserRepository {
             preparedStatement.setString(6, user.getPlayer_image());
             preparedStatement.setString(7, user.getPlayer_name());
 
+            // TODO: save player_id in local variable 'int player_id'
             preparedStatement.executeUpdate();
 
             return HttpStatus.CREATED;

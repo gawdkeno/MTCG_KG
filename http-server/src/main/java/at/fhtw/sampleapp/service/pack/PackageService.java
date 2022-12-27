@@ -10,15 +10,22 @@ import at.fhtw.httpserver.server.Service;
 public class PackageService implements Service {
 
     private final PackageController packageController;
+    private final TransactionController transactionController;
 
     public PackageService() {
         this.packageController = new PackageController();
+        this.transactionController = new TransactionController();
     }
+
 
     @Override
     public Response handleRequest(Request request) {
         if (request.getMethod() == Method.POST) {
-            return this.packageController.addPackage(request);
+            if (request.getServiceRoute().equals("/packages")) {
+                return this.packageController.addPackage(request);
+            } else if (request.getServiceRoute().equals("/transactions")) {
+                return this.transactionController.buyPackage(request);
+            }
         }
         return new Response(
                 HttpStatus.BAD_REQUEST,
