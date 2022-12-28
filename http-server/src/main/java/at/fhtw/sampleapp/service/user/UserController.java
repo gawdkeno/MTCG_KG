@@ -19,7 +19,7 @@ public class UserController extends Controller {
     }
 
     public Response addUser(Request request) {
-        UnitOfWork unitOfWork = null;
+        UnitOfWork unitOfWork = new UnitOfWork();
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
             user.setPlayer_coins(20);
@@ -28,7 +28,6 @@ public class UserController extends Controller {
             user.setPlayer_name("Sur/Prename");
             user.setPlayer_token("Basic "  + user.getPlayer_username() + "-mtcgToken");
 
-            unitOfWork = new UnitOfWork();
             HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
 
             switch (httpStatus) {
@@ -57,7 +56,6 @@ public class UserController extends Controller {
                     );
                 }
             }
-
         } catch (JsonProcessingException e) {
             e.printStackTrace();
             unitOfWork.rollbackTransaction();
@@ -67,6 +65,5 @@ public class UserController extends Controller {
                     "{ \"message\" : \"Username not available\" }"
             );
         }
-
     }
 }

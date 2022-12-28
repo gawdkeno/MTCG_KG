@@ -10,13 +10,6 @@ import at.fhtw.sampleapp.dal.repository.PackageRepository;
 import at.fhtw.sampleapp.model.Card;
 import at.fhtw.sampleapp.model.Pckg;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.google.gson.Gson;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
 
 public class PackageController extends Controller {
     private final PackageRepository packagerepository;
@@ -50,10 +43,8 @@ public class PackageController extends Controller {
             // TODO: wait for commitTransaction() until cards were also added to the pack,
             //  maybe create 2 unitOfWork's and committing/rollback both at the end
             //  GEHT VIELLEICHT NICHT WEIL ICH PACKAGE ID BRAUCHE
-            unitOfWork.commitTransaction();
 
             // CREATE CARDS IN PACK
-            unitOfWork = new UnitOfWork();
             try {
                 Card[] cards = this.getObjectMapper().readValue(request.getBody(), Card[].class);
                 for (Card card : cards) {
@@ -72,10 +63,11 @@ public class PackageController extends Controller {
                         card.setCard_type("monster");
                     }
                     // set package_id
-                    card.setCard_in_package(pckg.getPackage_id());
+                    card.setCard_package_id(pckg.getPackage_id());
 
                     HttpStatus httpStatus = this.packagerepository.postCard(card, unitOfWork);
                     if(httpStatus != HttpStatus.CREATED) {
+                        unitOfWork.rollbackTransaction();
                         return new Response(
                                 HttpStatus.CONFLICT,
                                 ContentType.JSON,

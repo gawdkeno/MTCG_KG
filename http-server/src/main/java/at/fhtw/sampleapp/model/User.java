@@ -34,6 +34,10 @@ public class User {
         this.player_token = player_token;
 }
 
+    public void setPlayer_id(int player_id) {
+        this.player_id = player_id;
+    }
+
     public String getPlayer_username() {
         return player_username;
     }

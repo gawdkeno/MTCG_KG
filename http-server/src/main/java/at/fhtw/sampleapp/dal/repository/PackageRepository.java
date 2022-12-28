@@ -25,7 +25,7 @@ public class PackageRepository {
             {
                 return resultSet.getInt(1);
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             System.err.println("postPckg() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
@@ -41,7 +41,7 @@ public class PackageRepository {
                                     card_dmg,
                                     card_element,
                                     card_type,
-                                    card_in_package) VALUES (?,?,?,?,?,?)
+                                    card_package_id) VALUES (?,?,?,?,?,?)
                 """))
         {
             preparedStatement.setString(1, card.getCard_code_id());
@@ -49,7 +49,7 @@ public class PackageRepository {
             preparedStatement.setInt(3, card.getCard_dmg());
             preparedStatement.setString(4, card.getCard_element());
             preparedStatement.setString(5, card.getCard_type());
-            preparedStatement.setInt(6, card.getCard_in_package());
+            preparedStatement.setInt(6, card.getCard_package_id());
 
             preparedStatement.executeUpdate();
 
@@ -57,6 +57,114 @@ public class PackageRepository {
 
         } catch (SQLException e) {
             System.err.println("postCard() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public int buyerId(String currentToken, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT player_id FROM player WHERE player_token = ?
+                """)) {
+            preparedStatement.setString(1,currentToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+            {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("buyerId() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+        return -1;
+    }
+    public int selectPackage(Pckg pckg, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT * FROM package LIMIT 1 
+                """)) {
+
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+            {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("selectPackage() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+        return -1;
+    }
+
+    public int checkCoins(String currentToken, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT player_coins FROM player WHERE player_token LIKE ? 
+                """)) {
+
+            preparedStatement.setString(1, currentToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            resultSet.next();
+            return resultSet.getInt(1);
+        } catch (SQLException e) {
+            System.err.println("checkCoins() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public HttpStatus addCardsToPlayer(int player_id, int selectedPackage_id, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE card SET card_player_id = ? WHERE card_package_id = ?
+                """))
+        {
+            preparedStatement.setInt(1, player_id);
+            preparedStatement.setInt(2, selectedPackage_id);
+
+            preparedStatement.executeUpdate();
+
+            return HttpStatus.OK;
+
+        } catch (SQLException e) {
+            System.err.println("addCardsToPlayer() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public HttpStatus reducePlayerCoins(int playerCoins, int player_id, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE player SET player_coins = ? WHERE player_id = ?
+                """))
+        {
+            // TODO: get package price '5' from package table and not hard coded
+            preparedStatement.setInt(1, playerCoins - 5);
+            preparedStatement.setInt(2, player_id);
+
+            preparedStatement.executeUpdate();
+
+            return HttpStatus.OK;
+
+        } catch (SQLException e) {
+            System.err.println("addCardsToPlayer() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public HttpStatus deletePackage(int package_id, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    DELETE FROM package WHERE package_id = ?
+                """))
+        {
+            preparedStatement.setInt(1, package_id);
+
+            preparedStatement.executeUpdate();
+
+            return HttpStatus.OK;
+
+        } catch (SQLException e) {
+            System.err.println("addCardsToPlayer() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
     }

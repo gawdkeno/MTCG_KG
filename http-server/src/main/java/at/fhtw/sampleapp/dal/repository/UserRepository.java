@@ -26,16 +26,16 @@ public class UserRepository {
     }
 
     public HttpStatus postUser(User user, UnitOfWork unitOfWork) {
+        // CHECK IF USER ALREADY EXISTS
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     SELECT * FROM player
                 """)) {
             ResultSet resultSet = preparedStatement.executeQuery();
-            String usernameCounter;
             while (resultSet.next())
             {
-                usernameCounter =  resultSet.getString("player_username");
-                if(usernameCounter.equals(user.getPlayer_username()))
+                String checkUsername = resultSet.getString("player_username");
+                if(checkUsername.equals(user.getPlayer_username()))
                 {
                     return HttpStatus.CONFLICT;
                 }
@@ -44,9 +44,10 @@ public class UserRepository {
             System.err.println("postUser() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
+        // REGISTER USER
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?,?)
+                    INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?,?) RETURNING player_id
                 """))
         {
             preparedStatement.setString(1, user.getPlayer_username());
@@ -57,8 +58,11 @@ public class UserRepository {
             preparedStatement.setString(6, user.getPlayer_image());
             preparedStatement.setString(7, user.getPlayer_name());
 
-            // TODO: save player_id in local variable 'int player_id'
-            preparedStatement.executeUpdate();
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+            {
+                user.setPlayer_id(resultSet.getInt(1));
+            }
 
             return HttpStatus.CREATED;
 
