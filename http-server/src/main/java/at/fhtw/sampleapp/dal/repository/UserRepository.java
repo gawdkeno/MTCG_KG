@@ -1,17 +1,13 @@
 package at.fhtw.sampleapp.dal.repository;
 
 import at.fhtw.httpserver.http.HttpStatus;
-import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.model.User;
-import at.fhtw.sampleapp.model.Weather;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 
 public class UserRepository {
 //    private UnitOfWork unitOfWork;
@@ -73,7 +69,7 @@ public class UserRepository {
 
     }
 
-    public int getBuyerId(String currentToken, UnitOfWork unitOfWork) {
+    public int getPlayerId(String currentToken, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     SELECT player_id FROM player WHERE player_token = ?

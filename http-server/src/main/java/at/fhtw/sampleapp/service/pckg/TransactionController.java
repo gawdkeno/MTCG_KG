@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.pack;
+package at.fhtw.sampleapp.service.pckg;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;
@@ -34,7 +34,7 @@ public class TransactionController {
         User user = new User();
         Pckg pckg  = new Pckg();
 
-        int player_id = this.userRepository.getBuyerId(currentToken, unitOfWork);
+        int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
         int selectedPackage_id = this.packagerepository.selectPackage(pckg, unitOfWork);
         // if there are no packs
         if (selectedPackage_id < 0) {

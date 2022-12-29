@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.pack;
+package at.fhtw.sampleapp.service.pckg;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;

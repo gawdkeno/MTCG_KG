@@ -1,10 +1,12 @@
 package at.fhtw;
 
+import at.fhtw.httpserver.server.Service;
 import at.fhtw.httpserver.utils.Router;
 import at.fhtw.httpserver.server.Server;
 import at.fhtw.sampleapp.service.card.CardService;
+import at.fhtw.sampleapp.service.deck.DeckService;
 import at.fhtw.sampleapp.service.echo.EchoService;
-import at.fhtw.sampleapp.service.pack.PackageService;
+import at.fhtw.sampleapp.service.pckg.PackageService;
 import at.fhtw.sampleapp.service.session.SessionService;
 import at.fhtw.sampleapp.service.user.UserService;
 import at.fhtw.sampleapp.service.weather.WeatherService;
@@ -23,6 +25,7 @@ public class Main {
 
     private static Router configureRouter()
     {
+        // TODO: unitOfWork placement besser machen
         Router router = new Router();
         router.addService("/weather", new WeatherService());
         router.addService("/echo", new EchoService());
@@ -31,9 +34,7 @@ public class Main {
         router.addService("/packages", new PackageService());
         router.addService("/transactions", new PackageService());
         router.addService("/cards", new CardService());
+        router.addService("/deck", new DeckService());
         return router;
-
-
-
     }
 }

@@ -9,8 +9,6 @@ import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.CardRepository;
 import at.fhtw.sampleapp.dal.repository.UserRepository;
 import at.fhtw.sampleapp.model.Card;
-import at.fhtw.sampleapp.model.User;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
 import java.util.Collection;
 
@@ -34,15 +32,15 @@ public class CardController extends Controller {
             );
         }
         try (unitOfWork){
-            int player_id = this.userRepository.getBuyerId(currentToken, unitOfWork);
-            Collection<Card> cardData = this.cardRepository.getCards(player_id, unitOfWork);
+            int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
+            Collection<Card> cardData = this.cardRepository.getCardsWithId(player_id, unitOfWork);
             String cardDataJSON = this.getObjectMapper().writeValueAsString(cardData);
 
             unitOfWork.commitTransaction();
             return new Response(
                     HttpStatus.OK,
                     ContentType.JSON,
-                    cardDataJSON
+                    (cardDataJSON + "\n")
             );
         } catch (Exception e) {
             e.printStackTrace();

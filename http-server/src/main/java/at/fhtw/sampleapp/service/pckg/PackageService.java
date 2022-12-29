@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.pack;
+package at.fhtw.sampleapp.service.pckg;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;
@@ -16,7 +16,6 @@ public class PackageService implements Service {
         this.packageController = new PackageController();
         this.transactionController = new TransactionController();
     }
-
 
     @Override
     public Response handleRequest(Request request) {
