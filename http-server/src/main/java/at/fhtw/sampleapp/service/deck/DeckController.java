@@ -25,6 +25,7 @@ public class DeckController extends Controller {
         this.userRepository = new UserRepository();
     }
     public Response showDeck(Request request) {
+        UnitOfWork unitOfWork = new UnitOfWork();
         String currentToken = request.getCurrentToken();
         if (currentToken == null) {
             return new Response(
@@ -33,8 +34,6 @@ public class DeckController extends Controller {
                     "{ \"message\": \"Failed, no token was given\" }"
             );
         }
-
-        UnitOfWork unitOfWork = new UnitOfWork();
         try (unitOfWork){
             int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
             Collection<Card> deckData = this.cardRepository.getDeck(player_id, unitOfWork);
@@ -66,6 +65,7 @@ public class DeckController extends Controller {
         }
     }
     public Response configureDeck(Request request) {
+        UnitOfWork unitOfWork = new UnitOfWork();
         String currentToken = request.getCurrentToken();
         if (currentToken == null) {
             return new Response(
@@ -74,8 +74,6 @@ public class DeckController extends Controller {
                     "{ \"message\": \"Failed, no token was given\" }"
             );
         }
-
-        UnitOfWork unitOfWork = new UnitOfWork();
         try {
             List<String> cardCodeIds = trimPayload(request.getBody());
             if(cardCodeIds.size() != 4){
@@ -83,7 +81,7 @@ public class DeckController extends Controller {
                 return new Response(
                         HttpStatus.BAD_REQUEST,
                         ContentType.JSON,
-                        "{ \"message\" : \"You need 4 cards in your deck\" }"
+                        "{ \"message\" : \"Failed, You need 4 cards in your deck\" }"
                 );
             }
             int playerId = this.userRepository.getPlayerId(currentToken, unitOfWork);
@@ -115,12 +113,12 @@ public class DeckController extends Controller {
 
 
     public List<String> trimPayload(String body) {
-        body.replace("[", "");
-        body.replace("]", "");
-        body.replaceAll("\"", "");
-        body.trim();
+        String newBody = body.replace("[", "")
+                .replace("]", "")
+                .replaceAll("\"", "")
+                .trim();
 
-        String[] ids = body.split(",");
+        String[] ids = newBody.split(",");
         List<String> idsClean = new ArrayList<>();
         for(String id : ids){
             idsClean.add(id.trim());
