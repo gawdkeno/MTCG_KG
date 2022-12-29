@@ -16,8 +16,16 @@ public class UserService implements Service {
 
     @Override
     public Response handleRequest(Request request) {
-        if (request.getMethod() == Method.POST) {
-            return this.userController.addUser(request);
+        switch (request.getMethod()) {
+            case POST -> {
+                return this.userController.addUser(request);
+            }
+            case GET -> {
+                return this.userController.showUserData(request);
+            }
+            case PUT -> {
+                //return this.userController.editUserData(request);
+            }
         }
         return new Response(
                 HttpStatus.BAD_REQUEST,

@@ -10,6 +10,8 @@ import at.fhtw.sampleapp.dal.repository.UserRepository;
 import at.fhtw.sampleapp.model.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import java.util.List;
+
 
 public class UserController extends Controller {
     private final UserRepository userRepository;
@@ -65,5 +67,12 @@ public class UserController extends Controller {
                     "{ \"message\" : \"Username not available\" }"
             );
         }
+    }
+
+    public Response showUserData(Request request) {
+
+        List<String> pathParts = request.getPathParts();
+        String pathUsername = pathParts.get(1);
+        return null;
     }
 }

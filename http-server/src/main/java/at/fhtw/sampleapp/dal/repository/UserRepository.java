@@ -22,25 +22,9 @@ public class UserRepository {
     }
 
     public HttpStatus postUser(User user, UnitOfWork unitOfWork) {
-        // CHECK IF USER ALREADY EXISTS
-        try (PreparedStatement preparedStatement =
-                     unitOfWork.prepareStatement("""
-                    SELECT * FROM player
-                """)) {
-            ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next())
-            {
-                String checkUsername = resultSet.getString("player_username");
-                if(checkUsername.equals(user.getPlayer_username()))
-                {
-                    return HttpStatus.CONFLICT;
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println("postUser() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        if (userExists(user.getPlayer_username(), unitOfWork)) {
+            return HttpStatus.CONFLICT;
         }
-        // REGISTER USER
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?,?) RETURNING player_id
@@ -69,6 +53,23 @@ public class UserRepository {
 
     }
 
+    public boolean userExists (String username, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT player_id FROM player WHERE player_username LIKE ?
+                """)) {
+            preparedStatement.setString(1, username);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next() ) {
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("postUser() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+        return false;
+    }
+
     public int getPlayerId(String currentToken, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -85,5 +86,23 @@ public class UserRepository {
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
         return -1;
+    }
+
+    public String getPlayerUserName(String currentToken, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT player_username FROM player WHERE player_token = ?
+                """)) {
+            preparedStatement.setString(1,currentToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+            {
+                return resultSet.getString(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("buyerId() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+        return null;
     }
 }

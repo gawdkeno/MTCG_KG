@@ -48,6 +48,13 @@ public class DeckController extends Controller {
             String cardDataJSON = this.getObjectMapper().writeValueAsString(deckData);
 
             unitOfWork.commitTransaction();
+            if (request.getParams() != null) {
+                return new Response(
+                        HttpStatus.OK,
+                        ContentType.PLAIN_TEXT,
+                        (cardDataJSON + "\n")
+                );
+            }
             return new Response(
                     HttpStatus.OK,
                     ContentType.JSON,
@@ -79,6 +86,7 @@ public class DeckController extends Controller {
             if(cardCodeIds.size() != 4){
                 unitOfWork.rollbackTransaction();
                 return new Response(
+
                         HttpStatus.BAD_REQUEST,
                         ContentType.JSON,
                         "{ \"message\" : \"Failed, You need 4 cards in your deck\" }"
@@ -86,14 +94,21 @@ public class DeckController extends Controller {
             }
             int playerId = this.userRepository.getPlayerId(currentToken, unitOfWork);
             HttpStatus httpStatus = this.cardRepository.putCardsInDeck(playerId, cardCodeIds, unitOfWork);
-             if (httpStatus == HttpStatus.OK) {
-                 unitOfWork.commitTransaction();
-                 return new Response(
-                         HttpStatus.OK,
-                         ContentType.JSON,
-                         "{ \"message\": \"Success, cards added to deck\" }"
-                 );
-             }
+            if (httpStatus == HttpStatus.OK) {
+                unitOfWork.commitTransaction();
+                return new Response(
+                        HttpStatus.OK,
+                        ContentType.JSON,
+                        "{ \"message\": \"Success, cards added to deck\" }"
+                );
+            } else if (httpStatus == HttpStatus.CONFLICT) {
+                unitOfWork.rollbackTransaction();
+                return new Response(
+                        HttpStatus.CONFLICT,
+                        ContentType.JSON,
+                        "{ \"message\": \"Failed, you can only create a Deck of 4\" }"
+                );
+            }
         } catch (Exception e){
             e.printStackTrace();
                 unitOfWork.rollbackTransaction();

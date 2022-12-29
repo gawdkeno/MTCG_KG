@@ -77,8 +77,8 @@ public class CardRepository {
                     UPDATE card SET card_in_deck = ? WHERE card_code_id IN (?,?,?,?) AND card_player_id = ?
                 """))
         {
-            // TODO: (maybe check if 4 cards were actually updated),
-            //  check if selected cards are already in deck
+            // TODO: !!!UNSET TRUE IF NEW DECK GETS CONFIGURED
+
             preparedStatement.setBoolean(1, true);
             preparedStatement.setString(2, cardCodeIds.get(0));
             preparedStatement.setString(3, cardCodeIds.get(1));
@@ -86,7 +86,10 @@ public class CardRepository {
             preparedStatement.setString(5, cardCodeIds.get(3));
             preparedStatement.setInt(6, playerId);
 
-            preparedStatement.executeUpdate();
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows != 4) {
+                return HttpStatus.CONFLICT;
+            }
 
             return HttpStatus.OK;
         } catch (SQLException e) {
