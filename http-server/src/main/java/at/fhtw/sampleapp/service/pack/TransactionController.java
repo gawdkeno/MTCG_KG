@@ -6,15 +6,18 @@ import at.fhtw.httpserver.server.Request;
 import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.PackageRepository;
+import at.fhtw.sampleapp.dal.repository.UserRepository;
 import at.fhtw.sampleapp.model.Pckg;
 import at.fhtw.sampleapp.model.User;
 
 public class TransactionController {
 
     private final PackageRepository packagerepository;
+    private final UserRepository userRepository;
 
     public TransactionController() {
         this.packagerepository = new PackageRepository();
+        this.userRepository = new UserRepository();
     }
     public Response buyPackage(Request request) {
         String currentToken = request.getCurrentToken();
@@ -31,7 +34,7 @@ public class TransactionController {
         User user = new User();
         Pckg pckg  = new Pckg();
 
-        int player_id = this.packagerepository.buyerId(currentToken, unitOfWork);
+        int player_id = this.userRepository.getBuyerId(currentToken, unitOfWork);
         int selectedPackage_id = this.packagerepository.selectPackage(pckg, unitOfWork);
         // if there are no packs
         if (selectedPackage_id < 0) {

@@ -72,4 +72,22 @@ public class UserRepository {
         }
 
     }
+
+    public int getBuyerId(String currentToken, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT player_id FROM player WHERE player_token = ?
+                """)) {
+            preparedStatement.setString(1,currentToken);
+            ResultSet resultSet = preparedStatement.executeQuery();
+            if (resultSet.next())
+            {
+                return resultSet.getInt(1);
+            }
+        } catch (SQLException e) {
+            System.err.println("buyerId() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+        return -1;
+    }
 }

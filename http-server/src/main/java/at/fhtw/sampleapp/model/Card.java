@@ -17,16 +17,12 @@ public class Card {
     private int card_player_id;
     private int card_package_id;
 
-    public Card(String card_code_id, String card_name, int card_dmg, String card_element, String card_type, Boolean card_in_deck, Boolean card_is_locked, int card_player_id, int card_package_id) {
-        this.card_code_id = card_code_id;
+    public Card(String card_name, int card_dmg, String card_element, String card_type) {
         this.card_name = card_name;
         this.card_dmg = card_dmg;
         this.card_element = card_element;
         this.card_type = card_type;
-        this.card_in_deck = card_in_deck ;
-        this.card_is_locked = card_is_locked;
-        this.card_player_id = card_player_id;
-        this.card_package_id = card_package_id;
+//        this.card_player_id = card_player_id;
     }
     //needed default-Constructor
     public Card() {

@@ -32,6 +32,7 @@ public class PackageRepository {
         return -1;
     }
 
+    // TODO: move to CardRepo
     public HttpStatus postCard(Card card, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -61,23 +62,6 @@ public class PackageRepository {
         }
     }
 
-    public int buyerId(String currentToken, UnitOfWork unitOfWork) {
-        try (PreparedStatement preparedStatement =
-                     unitOfWork.prepareStatement("""
-                    SELECT player_id FROM player WHERE player_token = ?
-                """)) {
-            preparedStatement.setString(1,currentToken);
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next())
-            {
-                return resultSet.getInt(1);
-            }
-        } catch (SQLException e) {
-            System.err.println("buyerId() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
-        }
-        return -1;
-    }
     public int selectPackage(Pckg pckg, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -91,11 +75,12 @@ public class PackageRepository {
             }
         } catch (SQLException e) {
             System.err.println("selectPackage() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+            throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
         }
         return -1;
     }
 
+    // TODO: move to PlayerRepo
     public int checkCoins(String currentToken, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -108,10 +93,11 @@ public class PackageRepository {
             return resultSet.getInt(1);
         } catch (SQLException e) {
             System.err.println("checkCoins() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+            throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
         }
     }
 
+    // TODO: move to CardRepo
     public HttpStatus addCardsToPlayer(int player_id, int selectedPackage_id, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -127,10 +113,11 @@ public class PackageRepository {
 
         } catch (SQLException e) {
             System.err.println("addCardsToPlayer() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }
 
+    // TODO: move to PlayerRepo
     public HttpStatus reducePlayerCoins(int playerCoins, int player_id, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
@@ -147,7 +134,7 @@ public class PackageRepository {
 
         } catch (SQLException e) {
             System.err.println("addCardsToPlayer() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }
 
@@ -165,7 +152,7 @@ public class PackageRepository {
 
         } catch (SQLException e) {
             System.err.println("addCardsToPlayer() doesn't work");
-            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+            throw new DataAccessException("DELETE NICHT ERFOLGREICH", e);
         }
     }
 }
