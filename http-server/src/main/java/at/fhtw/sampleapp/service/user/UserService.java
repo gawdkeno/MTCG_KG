@@ -24,7 +24,7 @@ public class UserService implements Service {
                 return this.userController.showUserData(request);
             }
             case PUT -> {
-                //return this.userController.editUserData(request);
+                return this.userController.editUserData(request);
             }
         }
         return new Response(

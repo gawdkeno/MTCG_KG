@@ -78,6 +78,7 @@ public class CardRepository {
                 """))
         {
             // TODO: !!!UNSET TRUE IF NEW DECK GETS CONFIGURED
+            // TODO: return error message when same deck wants to be configured
 
             preparedStatement.setBoolean(1, true);
             preparedStatement.setString(2, cardCodeIds.get(0));
@@ -97,6 +98,4 @@ public class CardRepository {
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }
-
-
 }
