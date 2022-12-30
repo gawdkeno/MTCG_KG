@@ -101,13 +101,14 @@ public class DeckController extends Controller {
                         ContentType.JSON,
                         "{ \"message\": \"Success, cards added to deck\" }"
                 );
+            } else if (httpStatus == HttpStatus.CONFLICT) {
+                unitOfWork.rollbackTransaction();
+                return new Response(
+                        HttpStatus.CONFLICT,
+                        ContentType.JSON,
+                        "{ \"message\": \"Failed, those cards are already in your deck, or you didn't select enough\" }"
+                );
             }
-            unitOfWork.rollbackTransaction();
-            return new Response(
-                    HttpStatus.CONFLICT,
-                    ContentType.JSON,
-                    "{ \"message\": \"Failed, those cards are already in your deck, or you didn't select enough\" }"
-            );
         } catch (Exception e){
             e.printStackTrace();
                 unitOfWork.rollbackTransaction();
