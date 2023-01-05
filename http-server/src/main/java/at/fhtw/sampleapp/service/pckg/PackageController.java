@@ -62,7 +62,7 @@ public class PackageController extends Controller {
                     } else {
                         card.setCard_type("monster");
                     }
-                    // set package_id
+                    // set package_id // needed?
                     card.setCard_package_id(pckg.getPackage_id());
 
                     HttpStatus httpStatus = this.packagerepository.postCard(card, unitOfWork);

@@ -3,6 +3,7 @@ package at.fhtw;
 import at.fhtw.httpserver.server.Service;
 import at.fhtw.httpserver.utils.Router;
 import at.fhtw.httpserver.server.Server;
+import at.fhtw.sampleapp.service.battle.BattleService;
 import at.fhtw.sampleapp.service.card.CardService;
 import at.fhtw.sampleapp.service.deck.DeckService;
 import at.fhtw.sampleapp.service.echo.EchoService;
@@ -39,7 +40,7 @@ public class Main {
         router.addService("/deck", new DeckService());
         router.addService("/stats", new StatsService());
         router.addService("/score", new ScoreService());
-//        router.addService("/battles", new BattleService);
+        router.addService("/battles", new BattleService());
 //        router.addService("/tradings", new TradingService);
         return router;
     }

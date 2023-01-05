@@ -9,9 +9,7 @@ import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.CardRepository;
 import at.fhtw.sampleapp.dal.repository.UserRepository;
 import at.fhtw.sampleapp.model.Card;
-import com.fasterxml.jackson.core.JsonProcessingException;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -93,7 +91,7 @@ public class DeckController extends Controller {
                 );
             }
             int playerId = this.userRepository.getPlayerId(currentToken, unitOfWork);
-            HttpStatus httpStatus = this.cardRepository.putCardsInDeck(playerId, cardCodeIds, unitOfWork);
+            HttpStatus httpStatus = this.cardRepository.updateCardsInDeck(playerId, cardCodeIds, unitOfWork);
             if (httpStatus == HttpStatus.OK) {
                 unitOfWork.commitTransaction();
                 return new Response(

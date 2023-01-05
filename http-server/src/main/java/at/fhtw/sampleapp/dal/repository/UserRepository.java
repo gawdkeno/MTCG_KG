@@ -24,8 +24,7 @@ public class UserRepository {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?,?) RETURNING player_id
-                """))
-        {
+                """)) {
             // TODO: einfach in der DB als Default die Werte von bio, img usw. setzen
             preparedStatement.setString(1, user.getPlayer_username());
             preparedStatement.setString(2, user.getPlayer_password());
@@ -36,6 +35,7 @@ public class UserRepository {
             preparedStatement.setString(7, user.getPlayer_name());
 
             ResultSet resultSet = preparedStatement.executeQuery();
+            // TODO: bringt mir nichts glaub ich
             if (resultSet.next())
             {
                 user.setPlayer_id(resultSet.getInt(1));
@@ -78,7 +78,7 @@ public class UserRepository {
                 return resultSet.getInt(1);
             }
         } catch (SQLException e) {
-            System.err.println("buyerId() doesn't work");
+            System.err.println("getPlayerId() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
         return -1;
@@ -96,7 +96,7 @@ public class UserRepository {
                 return resultSet.getString(1);
             }
         } catch (SQLException e) {
-            System.err.println("buyerId() doesn't work");
+            System.err.println("getPlayerUserName() doesn't work");
             throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
         }
         return null;
@@ -124,7 +124,7 @@ public class UserRepository {
             }
             return null;
         } catch (SQLException e) {
-            System.err.println("getDeck() doesn't work");
+            System.err.println("getUserData() doesn't work");
             throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
         }
     }
@@ -135,8 +135,7 @@ public class UserRepository {
                     UPDATE player SET player_name = ?,
                                       player_bio = ?,
                                       player_image = ? WHERE player_username =?; 
-                """))
-        {
+                """)) {
             preparedStatement.setString(1, user.getPlayer_name());
             preparedStatement.setString(2, user.getPlayer_bio());
             preparedStatement.setString(3, user.getPlayer_image());
@@ -154,7 +153,6 @@ public class UserRepository {
                      unitOfWork.prepareStatement("""
                     SELECT player_username, player_elo, player_total_battles, player_wins, player_losses FROM player WHERE player_token = ?
                 """)) {
-
             preparedStatement.setString(1, currentToken);
             ResultSet resultSet = preparedStatement.executeQuery();
             Collection<User> userStats = new ArrayList<>();
@@ -181,7 +179,6 @@ public class UserRepository {
                      unitOfWork.prepareStatement("""
                     SELECT player_username, player_elo FROM player ORDER BY player_elo DESC
                 """)) {
-
             ResultSet resultSet = preparedStatement.executeQuery();
             Collection<User> userScore = new ArrayList<>();
             while(resultSet.next())

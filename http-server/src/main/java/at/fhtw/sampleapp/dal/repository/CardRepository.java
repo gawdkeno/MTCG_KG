@@ -71,7 +71,7 @@ public class CardRepository {
         }
     }
 
-    public HttpStatus putCardsInDeck(int playerId, List<String> cardCodeIds, UnitOfWork unitOfWork) {
+    public HttpStatus updateCardsInDeck(int playerId, List<String> cardCodeIds, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     UPDATE card SET card_in_deck = ? WHERE card_code_id IN (?,?,?,?) AND card_player_id = ?
