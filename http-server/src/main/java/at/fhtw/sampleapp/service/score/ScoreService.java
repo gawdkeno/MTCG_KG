@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.card;
+package at.fhtw.sampleapp.service.score;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;
@@ -7,19 +7,17 @@ import at.fhtw.httpserver.server.Request;
 import at.fhtw.httpserver.server.Response;
 import at.fhtw.httpserver.server.Service;
 
-import java.lang.module.ResolutionException;
+public class ScoreService implements Service {
+    private final ScoreController scoreController;
 
-public class CardService implements Service {
-    private final CardController cardController;
-
-    public CardService(){
-        this.cardController = new CardController();
+    public ScoreService() {
+        this.scoreController = new ScoreController();
     }
 
     @Override
     public Response handleRequest(Request request) {
         if (request.getMethod() == Method.GET) {
-            return this.cardController.showCards(request);
+            return this.scoreController.showScore(request);
         }
         return new Response(
                 HttpStatus.BAD_REQUEST,

@@ -17,6 +17,10 @@ public class User {
     @JsonAlias({"Name"})
     private String player_name;
     private String player_token;
+    private int player_elo;
+    private int player_total_battles;
+    private int player_wins;
+    private int player_losses;
 
     public User() {
 
@@ -27,8 +31,19 @@ public class User {
         this.player_bio = player_bio;
         this.player_image = player_image;
         this.player_name = player_name;
-}
+    }
+    public User(String player_username, int player_elo, int player_total_battles, int player_wins, int player_losses) {
+        this.player_username = player_username;
+        this.player_elo = player_elo;
+        this.player_total_battles = player_total_battles;
+        this.player_wins = player_wins;
+        this.player_losses = player_losses;
+    }
 
+    public User (String player_username, int player_elo) {
+        this.player_username = player_username;
+        this.player_elo = player_elo;
+    }
     public void setPlayer_id(int player_id) {
         this.player_id = player_id;
     }
@@ -100,5 +115,37 @@ public class User {
 
     public void setPlayer_token(String player_Token) {
         this.player_token = player_Token;
+    }
+
+    public int getPlayer_elo() {
+        return player_elo;
+    }
+
+    public void setPlayer_elo(int player_elo) {
+        this.player_elo = player_elo;
+    }
+
+    public int getPlayer_total_battles() {
+        return player_total_battles;
+    }
+
+    public void setPlayer_total_battles(int player_total_battles) {
+        this.player_total_battles = player_total_battles;
+    }
+
+    public int getPlayer_wins() {
+        return player_wins;
+    }
+
+    public void setPlayer_wins(int player_wins) {
+        this.player_wins = player_wins;
+    }
+
+    public int getPlayer_losses() {
+        return player_losses;
+    }
+
+    public void setPlayer_losses(int player_losses) {
+        this.player_losses = player_losses;
     }
 }
