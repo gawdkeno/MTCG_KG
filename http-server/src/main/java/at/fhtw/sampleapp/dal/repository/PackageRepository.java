@@ -47,7 +47,7 @@ public class PackageRepository {
         {
             preparedStatement.setString(1, card.getCard_code_id());
             preparedStatement.setString(2, card.getCard_name());
-            preparedStatement.setInt(3, card.getCard_dmg());
+            preparedStatement.setFloat(3, card.getCard_dmg());
             preparedStatement.setString(4, card.getCard_element());
             preparedStatement.setString(5, card.getCard_type());
             preparedStatement.setInt(6, card.getCard_package_id());

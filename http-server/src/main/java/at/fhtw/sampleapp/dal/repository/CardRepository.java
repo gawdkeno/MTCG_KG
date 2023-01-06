@@ -17,7 +17,7 @@ public class CardRepository {
     public Collection<Card> getCardsWithId(int playerId, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT card_name, card_dmg, card_element, card_type FROM card WHERE card_player_id = ?
+                    SELECT card_id, card_name, card_dmg, card_element, card_type FROM card WHERE card_player_id = ?
                 """)) {
 
             preparedStatement.setInt(1, playerId);
@@ -26,11 +26,11 @@ public class CardRepository {
             while(resultSet.next())
             {
                 Card card = new Card(
-                        resultSet.getString(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4));
-                        // resultSet.getInt(5));
+                        resultSet.getInt(1),
+                        resultSet.getString(2),
+                        resultSet.getInt(3),
+                        resultSet.getString(4),
+                        resultSet.getString(5));
                 cardRows.add(card);
             }
             return cardRows;
@@ -43,7 +43,7 @@ public class CardRepository {
     public Collection<Card> getDeck(int playerId, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT card_name, card_dmg, card_element, card_type FROM card WHERE card_player_id = ? AND card_in_deck = ?
+                    SELECT card_id, card_name, card_dmg, card_element, card_type FROM card WHERE card_player_id = ? AND card_in_deck = ?
                 """)) {
 
             preparedStatement.setInt(1, playerId);
@@ -54,10 +54,11 @@ public class CardRepository {
             while(resultSet.next())
             {
                 Card card = new Card(
-                        resultSet.getString(1),
-                        resultSet.getInt(2),
-                        resultSet.getString(3),
-                        resultSet.getString(4));
+                        resultSet.getInt(1),
+                        resultSet.getString(2),
+                        resultSet.getInt(3),
+                        resultSet.getString(4),
+                        resultSet.getString(5));
                 deck.add(card);
             }
             if (deck.size() != 4) {

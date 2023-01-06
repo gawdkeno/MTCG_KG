@@ -9,7 +9,7 @@ public class Card {
     @JsonAlias({"Name"})
     private String card_name;
     @JsonAlias({"Damage"})
-    private int card_dmg;
+    private float card_dmg;
     private String card_element;
     private String card_type;
     private Boolean card_in_deck;
@@ -17,12 +17,12 @@ public class Card {
     private int card_player_id;
     private int card_package_id;
 
-    public Card(String card_name, int card_dmg, String card_element, String card_type) {
+    public Card(int card_id,String card_name, float card_dmg, String card_element, String card_type) {
+        this.card_id = card_id;
         this.card_name = card_name;
         this.card_dmg = card_dmg;
         this.card_element = card_element;
         this.card_type = card_type;
-//        this.card_player_id = card_player_id;
     }
     //needed default-Constructor
     public Card() {
@@ -53,11 +53,11 @@ public class Card {
         this.card_name = card_name;
     }
 
-    public int getCard_dmg() {
+    public float getCard_dmg() {
         return card_dmg;
     }
 
-    public void setCard_dmg(int card_dmg) {
+    public void setCard_dmg(float card_dmg) {
         this.card_dmg = card_dmg;
     }
 
