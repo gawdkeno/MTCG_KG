@@ -58,7 +58,6 @@ public class CardRepository {
                         resultSet.getInt(2),
                         resultSet.getString(3),
                         resultSet.getString(4));
-                // resultSet.getInt(5));
                 deck.add(card);
             }
             if (deck.size() != 4) {

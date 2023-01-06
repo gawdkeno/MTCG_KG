@@ -7,18 +7,24 @@ import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.controller.Controller;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.BattleRepository;
+import at.fhtw.sampleapp.dal.repository.CardRepository;
 import at.fhtw.sampleapp.dal.repository.UserRepository;
 import at.fhtw.sampleapp.model.Battle;
+import at.fhtw.sampleapp.model.Card;
+
+import java.util.*;
 
 public class BattleController extends Controller {
     private final UserRepository userRepository;
     private final BattleRepository battleRepository;
+    private final CardRepository cardRepository;
 
     static final Object lock = new Object();
 
     public BattleController() {
         this.userRepository = new UserRepository();
         this.battleRepository = new BattleRepository();
+        this.cardRepository = new CardRepository();
     }
     public Response initializeBattle(Request request) {
         UnitOfWork unitOfWork = new UnitOfWork();
@@ -45,7 +51,8 @@ public class BattleController extends Controller {
                     );
                 }
                 unitOfWork.commitTransaction();
-//                if(battle.getBattle_player_a_id() != -1 && battle.getBattle_player_b_id() != -1) {      //check if lobby is full
+                if(battle.getBattle_player_a_id() != -1 && battle.getBattle_player_b_id() != -1) {
+                    startBattle(battle, unitOfWork);
 //                    if (startBattle(battle, unitOfWork)){
 //                        this.battleRepository.setWinner(battle, unitOfWork);
 //                    }else{
@@ -57,12 +64,53 @@ public class BattleController extends Controller {
 //                    }
 //                }else{
 //                    waitForBattle(battle, unitOfWork);
-//                }
+                }
             }
         } catch (Exception e) {
             unitOfWork.rollbackTransaction();
             throw new RuntimeException(e);
         }
         return null;
+    }
+
+    private void startBattle(Battle battle, UnitOfWork unitOfWork) {
+        Collection<Card> deckDataA = this.cardRepository.getDeck(battle.getBattle_player_a_id(), unitOfWork);
+        Collection<Card> deckDataB = this.cardRepository.getDeck(battle.getBattle_player_b_id(), unitOfWork);
+        List<Card> deckPlayerA = new ArrayList<>(deckDataA);
+        List<Card> deckPlayerB = new ArrayList<>(deckDataB);
+
+//        for (int round = 0; round < 100; ++round) {
+            Card cardA = deckPlayerA.get(new Random().nextInt(deckPlayerA.size()));
+            Card cardB = deckPlayerB.get(new Random().nextInt(deckPlayerB.size()));
+
+
+
+            Card roundWinner = battleRound(cardA, cardB);
+            if (roundWinner != null) {
+                System.out.println(roundWinner.getCard_name());
+                System.out.println(roundWinner.getCard_dmg());
+            }
+            else
+                System.out.println("DRAW OR NOT IMPLEMENTED");
+//        }
+    }
+
+    private Card battleRound(Card cardA, Card cardB) {
+        System.out.println(cardA.getCard_name() + "\n" + cardB.getCard_name() + "\n");
+        System.out.println(cardA.getCard_type() + "\n" + cardB.getCard_type() + "\n");
+        if ((cardA.getCard_type().equals("monster") && cardB.getCard_type().equals("monster")) ||
+            (cardA.getCard_name().equals(cardB.getCard_name()))) {
+            return normalFight(cardA, cardB);
+        }
+        return null;
+    }
+
+    private Card normalFight(Card cardA, Card cardB) {
+        if (cardA.getCard_dmg() > cardB.getCard_dmg())
+            return cardA;
+        if (cardA.getCard_dmg() < cardB.getCard_dmg())
+            return cardB;
+        else
+            return null;
     }
 }
