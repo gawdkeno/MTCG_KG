@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonAlias;
 
 public class Card {
     private int card_id;
+    private String cardIdString;
     @JsonAlias({"Id"})
     private String card_code_id;
     @JsonAlias({"Name"})
@@ -24,6 +25,13 @@ public class Card {
         this.card_element = card_element;
         this.card_type = card_type;
     }
+
+    public Card(String cardIdString, String card_name, float card_dmg) {
+        this.cardIdString = cardIdString;
+        this.card_name = card_name;
+        this.card_dmg = card_dmg;
+    }
+
     //needed default-Constructor
     public Card() {
 
@@ -35,6 +43,14 @@ public class Card {
 
     public void setCard_id(int card_id) {
         this.card_id = card_id;
+    }
+
+    public String getCardIdString() {
+        return cardIdString;
+    }
+
+    public void setCardIdString(String cardIdString) {
+        this.cardIdString = cardIdString;
     }
 
     public String getCard_code_id() {

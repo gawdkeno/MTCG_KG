@@ -4,6 +4,7 @@ import at.fhtw.httpserver.http.HttpStatus;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.model.Battle;
+import at.fhtw.sampleapp.model.Card;
 import at.fhtw.sampleapp.model.User;
 
 import java.sql.PreparedStatement;
@@ -18,6 +19,8 @@ public class BattleRepository {
                      unitOfWork.prepareStatement("""
                     SELECT battle_id, battle_player_a_id FROM battle WHERE battle_player_b_id IS NULL LIMIT 1
                 """)) {
+            // TODO:
+            //  preparedStatement.setString(1, null);
             ResultSet resultSet = preparedStatement.executeQuery();
             Battle battle = new Battle();
             // if lobby exists
@@ -78,6 +81,53 @@ public class BattleRepository {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             System.err.println("addUserToLobby() doesn't work");
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public void addBattleRound(Card cardA, Card cardB, Card roundWinner, Battle battle, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    INSERT INTO battle_round VALUES (DEFAULT,?,?,?,?)
+                """)) {
+            preparedStatement.setInt(1, battle.getBattle_id());
+            preparedStatement.setInt(2, cardA.getCard_id());
+            preparedStatement.setInt(3, cardB.getCard_id());
+            preparedStatement.setInt(4, roundWinner.getCard_id());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("addBattleRound() doesn't work");
+            throw new DataAccessException("INSERT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public void finishBattle(Battle battle, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE battle SET battle_finished = ? WHERE battle_id = ?
+                """)) {
+            preparedStatement.setBoolean(1, true);
+            preparedStatement.setInt(2, battle.getBattle_id());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("finishBattle() doesn't work");
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public void updateWinner(Battle battle, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE battle SET battle_winner_id = ? WHERE battle_id = ?
+                """)) {
+            preparedStatement.setInt(1, battle.getBattle_winner_id());
+            preparedStatement.setInt(2, battle.getBattle_id());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("finishBattle() doesn't work");
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }

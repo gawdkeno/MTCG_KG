@@ -3,6 +3,7 @@ package at.fhtw.sampleapp.dal.repository;
 import at.fhtw.httpserver.http.HttpStatus;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
+import at.fhtw.sampleapp.model.Battle;
 import at.fhtw.sampleapp.model.Card;
 import at.fhtw.sampleapp.model.User;
 
@@ -23,7 +24,7 @@ public class UserRepository {
         }
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    INSERT INTO player VALUES (DEFAULT, ?,?,?,?,?,?,?) RETURNING player_id
+                    INSERT INTO player VALUES (DEFAULT,?,?,?,?,?,?,?) RETURNING player_id
                 """)) {
             // TODO: einfach in der DB als Default die Werte von bio, img usw. setzen
             preparedStatement.setString(1, user.getPlayer_username());
@@ -192,6 +193,52 @@ public class UserRepository {
         } catch (SQLException e) {
             System.err.println("getUserScore() doesn't work");
             throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public void updateUserStats(Battle battle, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE player SET player_total_battles = player_total_battles + ?,
+                                      player_wins = player_wins + ?,
+                                      player_losses = player_losses + ?,
+                                      player_elo = player_elo + ? WHERE player_id = ?;
+                """)) {
+            // winner and loser
+            preparedStatement.setInt(1, 1);
+            if ((battle.getBattle_player_a_id() == battle.getBattle_winner_id()) ||
+                (battle.getBattle_player_b_id() == battle.getBattle_winner_id())) {
+                // winner
+                preparedStatement.setInt(2, 1);
+                preparedStatement.setInt(3, 0);
+                preparedStatement.setInt(4, 3);
+                preparedStatement.setInt(5, battle.getBattle_winner_id());
+                preparedStatement.executeUpdate();
+
+                // loser
+                preparedStatement.setInt(2, 0);
+                preparedStatement.setInt(3, 1);
+                preparedStatement.setInt(4, -5);
+                if (battle.getBattle_player_a_id() == battle.getBattle_winner_id()) {
+                    preparedStatement.setInt(5, battle.getBattle_player_b_id());
+                } else if (battle.getBattle_player_b_id() == battle.getBattle_winner_id()) {
+                    preparedStatement.setInt(5, battle.getBattle_player_a_id());
+                }
+            }
+            // draw
+            else {
+                preparedStatement.setInt(2, 1);
+                preparedStatement.setInt(3, 0);
+                preparedStatement.setInt(4, 0);
+                preparedStatement.setInt(5, battle.getBattle_player_a_id());
+                preparedStatement.executeUpdate();
+                preparedStatement.setInt(5, battle.getBattle_player_b_id());
+            }
+            // for loser update and draw player B update
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("updateUserStats() doesn't work");
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }
 }

@@ -52,7 +52,14 @@ public class BattleController extends Controller {
                 }
                 unitOfWork.commitTransaction();
                 if(battle.getBattle_player_a_id() != -1 && battle.getBattle_player_b_id() != -1) {
-                    startBattle(battle, unitOfWork);
+                    int battleWinnerId = startBattle(battle, unitOfWork);
+                    this.battleRepository.finishBattle(battle, unitOfWork);
+                    if (battleWinnerId != -1) {
+                        this.battleRepository.updateWinner(battle, unitOfWork);
+                        unitOfWork.commitTransaction();
+                    }
+                    unitOfWork.commitTransaction();
+                    // TODO: log of battle
 //                    if (startBattle(battle, unitOfWork)){
 //                        this.battleRepository.setWinner(battle, unitOfWork);
 //                    }else{
@@ -73,7 +80,7 @@ public class BattleController extends Controller {
         return null;
     }
 
-    private void startBattle(Battle battle, UnitOfWork unitOfWork) {
+    private int startBattle(Battle battle, UnitOfWork unitOfWork) {
         Collection<Card> deckDataA = this.cardRepository.getDeck(battle.getBattle_player_a_id(), unitOfWork);
         Collection<Card> deckDataB = this.cardRepository.getDeck(battle.getBattle_player_b_id(), unitOfWork);
         List<Card> deckPlayerA = new ArrayList<>(deckDataA);
@@ -84,18 +91,26 @@ public class BattleController extends Controller {
             Card cardB = deckPlayerB.get(new Random().nextInt(deckPlayerB.size()));
 
             Card roundWinner = battleRound(cardA, cardB);
-            if (roundWinner != null) {
-                if (roundWinner.equals(cardA)) {
-                    deckPlayerB.remove(cardB);
-                    deckPlayerA.add(cardB);
-                } else {
-                    deckPlayerA.remove(cardA);
-                    deckPlayerB.add(cardA);
-                }
+            if (roundWinner.equals(cardA)) {
+                deckPlayerB.remove(cardB);
+                deckPlayerA.add(cardB);
+            } else if (roundWinner.equals(cardB)){
+                deckPlayerA.remove(cardA);
+                deckPlayerB.add(cardA);
             }
-            else
-                System.out.println("DRAW OR NOT IMPLEMENTED");
+            this.battleRepository.addBattleRound(cardA, cardB, roundWinner, battle, unitOfWork);
+            if (deckPlayerA.isEmpty() || deckPlayerB.isEmpty()) {
+                if (deckPlayerA.isEmpty()) {
+                    battle.setBattle_winner_id(battle.getBattle_player_b_id());
+                } else if (deckPlayerB.isEmpty()) {
+                    battle.setBattle_winner_id(battle.getBattle_player_a_id());
+                }
+                this.userRepository.updateUserStats(battle, unitOfWork);
+                return battle.getBattle_winner_id();
+            }
         }
+        this.userRepository.updateUserStats(battle, unitOfWork);
+        return -1;
     }
 
     private Card battleRound(Card cardA, Card cardB) {
@@ -115,7 +130,7 @@ public class BattleController extends Controller {
             if (cardA.getCard_dmg() < cardB.getCard_dmg())
                 return cardB;
             else
-                return null;
+                return new Card(null, "Draw", 0);
         }
 
         boolean cardBAdvantage = false;
@@ -131,14 +146,14 @@ public class BattleController extends Controller {
             if (cardA.getCard_dmg() / 2 < cardB.getCard_dmg() * 2)
                 return cardB;
             else
-                return null;
+                return new Card(null, "Draw", 0);
         } else {
             if (cardA.getCard_dmg() * 2 > cardB.getCard_dmg() / 2)
                 return cardA;
             if (cardA.getCard_dmg() * 2 < cardB.getCard_dmg() / 2)
                 return cardB;
             else
-                return null;
+                return new Card(null, "Draw", 0);
         }
     }
 
@@ -148,40 +163,40 @@ public class BattleController extends Controller {
                  if (cardB.getCard_dmg() > cardA.getCard_dmg())
                      return cardB;
                  else
-                    return null;
+                    return new Card(null, "Draw", 0);
              }
         } else if (cardA.getCard_name().contains("Dragon")) {
             if (cardB.getCard_name().contains("Goblin")) {
                 if (cardA.getCard_dmg() > cardB.getCard_dmg())
                     return cardA;
                 else
-                    return null;
+                    return new Card(null, "Draw", 0);
             } else if (cardB.getCard_name().equals("FireElf")) {
                 if (cardB.getCard_dmg() > cardA.getCard_dmg())
                     return cardB;
                 else
-                    return null;
+                    return new Card(null, "Draw", 0);
             }
         } else if (cardA.getCard_name().equals("FireElf")) {
             if (cardB.getCard_name().contains("Dragon")) {
                 if (cardA.getCard_dmg() > cardB.getCard_dmg())
                     return cardA;
                 else
-                    return null;
+                    return new Card(null, "Draw", 0);
             }
         } else if (cardA.getCard_name().contains("Wizard")) {
             if (cardB.getCard_name().contains("Ork")) {
                 if (cardA.getCard_dmg() > cardB.getCard_dmg())
                     return cardA;
                 else
-                    return null;
+                    return new Card(null, "Draw", 0);
             }
         } else if (cardA.getCard_name().contains("Ork")) {
             if (cardB.getCard_name().contains("Wizard")) {
                 if (cardB.getCard_dmg() > cardA.getCard_dmg())
                     return cardB;
                 else
-                    return null;
+                    return new Card(null, "Draw", 0);
             }
         }
         return fight(cardA, cardB, false);
