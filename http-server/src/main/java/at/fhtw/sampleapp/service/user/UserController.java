@@ -25,10 +25,6 @@ public class UserController extends Controller {
         UnitOfWork unitOfWork = new UnitOfWork();
         try {
             User user = this.getObjectMapper().readValue(request.getBody(), User.class);
-            user.setPlayer_coins(20);
-            user.setPlayer_image(":-)");
-            user.setPlayer_bio("MTCG Player");
-            user.setPlayer_name("first name, last name");
             user.setPlayer_token("Basic "  + user.getPlayer_username() + "-mtcgToken");
 
             HttpStatus httpStatus = this.userRepository.postUser(user, unitOfWork);
@@ -115,7 +111,8 @@ public class UserController extends Controller {
         if (currentToken == null) {
             return null;
         }
-        String username = this.userRepository.getPlayerUserName(currentToken, unitOfWork);
+        int playerID = this.userRepository.getPlayerId(currentToken, unitOfWork);
+        String username = this.userRepository.getPlayerUserName(playerID, unitOfWork);
         List<String> pathParts = request.getPathParts();
         String pathUsername = pathParts.get(1);
 

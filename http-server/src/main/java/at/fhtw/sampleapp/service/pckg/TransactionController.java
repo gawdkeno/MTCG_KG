@@ -7,8 +7,6 @@ import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.PackageRepository;
 import at.fhtw.sampleapp.dal.repository.UserRepository;
-import at.fhtw.sampleapp.model.Pckg;
-import at.fhtw.sampleapp.model.User;
 
 public class TransactionController {
 
@@ -29,13 +27,9 @@ public class TransactionController {
             );
         }
         UnitOfWork unitOfWork = new UnitOfWork();
-        // TODO: see if this is really necessary or I can just work with my locally created
-        //  variables so f.e. just selectedPackage_id instead of pckg.setPackage_id(selectedPackage_id)
-        User user = new User();
-        Pckg pckg  = new Pckg();
 
         int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
-        int selectedPackage_id = this.packagerepository.selectPackage(pckg, unitOfWork);
+        int selectedPackage_id = this.packagerepository.selectPackage(unitOfWork);
         // if there are no packs
         if (selectedPackage_id < 0) {
             unitOfWork.rollbackTransaction();
@@ -45,7 +39,6 @@ public class TransactionController {
                     "{ \"message\":\"Failed, no packs to buy\" }"
             );
         }
-        pckg.setPackage_id(selectedPackage_id);
         int playerCoins = this.packagerepository.checkCoins(currentToken, unitOfWork);
         // if player can't buy any packs
         if (playerCoins < 5) {
@@ -56,8 +49,6 @@ public class TransactionController {
                     "{ \"message\":\"Failed, you're broke G\" }"
             );
         }
-        user.setPlayer_coins(playerCoins);
-
         HttpStatus httpStatus = this.packagerepository.addCardsToPlayer(player_id, selectedPackage_id, unitOfWork);
         if (httpStatus != HttpStatus.OK) {
             unitOfWork.rollbackTransaction();
@@ -76,7 +67,7 @@ public class TransactionController {
                     "{ \"message\":\"Failed, couldn't reduce coins\" }"
             );
         }
-        httpStatus = this.packagerepository.deletePackage(pckg.getPackage_id(), unitOfWork);
+        httpStatus = this.packagerepository.deletePackage(selectedPackage_id, unitOfWork);
         if (httpStatus != HttpStatus.OK) {
             unitOfWork.rollbackTransaction();
             return new Response(

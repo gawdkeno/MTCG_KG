@@ -40,10 +40,6 @@ public class PackageController extends Controller {
         pckg.setPackage_id(this.packagerepository.postPckg(pckg, unitOfWork));
 
         if (pckg.getPackage_id() > 0) {
-            // TODO: wait for commitTransaction() until cards were also added to the pack,
-            //  maybe create 2 unitOfWork's and committing/rollback both at the end
-            //  GEHT VIELLEICHT NICHT WEIL ICH PACKAGE ID BRAUCHE
-
             // CREATE CARDS IN PACK
             try {
                 Card[] cards = this.getObjectMapper().readValue(request.getBody(), Card[].class);

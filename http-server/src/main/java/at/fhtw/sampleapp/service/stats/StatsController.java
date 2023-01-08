@@ -7,9 +7,7 @@ import at.fhtw.httpserver.server.Response;
 import at.fhtw.sampleapp.controller.Controller;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.dal.repository.UserRepository;
-import at.fhtw.sampleapp.model.Card;
 import at.fhtw.sampleapp.model.User;
-import at.fhtw.sampleapp.service.user.UserController;
 
 import java.util.Collection;
 

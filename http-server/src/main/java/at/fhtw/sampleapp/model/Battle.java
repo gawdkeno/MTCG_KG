@@ -7,15 +7,8 @@ public class Battle {
     private boolean battle_finished;
     private int battle_winner_id;
 
-    public Battle(int battle_id, int battle_player_a_id, int battle_player_b_id, boolean battle_finished, int battle_winner_id) {
-        this.battle_id = battle_id;
-        this.battle_player_a_id = battle_player_a_id;
-        this.battle_player_b_id = battle_player_b_id;
-        this.battle_finished = battle_finished;
-        this.battle_winner_id = battle_winner_id;
-    }
-
     public Battle() {
+
     }
 
     public int getBattle_id() {

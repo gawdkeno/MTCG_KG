@@ -104,7 +104,7 @@ public class DeckController extends Controller {
                 return new Response(
                         HttpStatus.CONFLICT,
                         ContentType.JSON,
-                        "{ \"message\": \"Failed, those cards are already in your deck, or you didn't select enough\" }"
+                        "{ \"message\": \"Failed, you don't own one or more cards, or you didn't select enough\" }"
                 );
             }
         } catch (Exception e){

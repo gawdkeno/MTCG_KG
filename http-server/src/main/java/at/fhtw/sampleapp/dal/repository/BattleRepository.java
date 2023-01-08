@@ -1,11 +1,10 @@
 package at.fhtw.sampleapp.dal.repository;
 
-import at.fhtw.httpserver.http.HttpStatus;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.model.Battle;
+import at.fhtw.sampleapp.model.BattleRound;
 import at.fhtw.sampleapp.model.Card;
-import at.fhtw.sampleapp.model.User;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,8 +18,6 @@ public class BattleRepository {
                      unitOfWork.prepareStatement("""
                     SELECT battle_id, battle_player_a_id FROM battle WHERE battle_player_b_id IS NULL LIMIT 1
                 """)) {
-            // TODO:
-            //  preparedStatement.setString(1, null);
             ResultSet resultSet = preparedStatement.executeQuery();
             Battle battle = new Battle();
             // if lobby exists
@@ -127,8 +124,45 @@ public class BattleRepository {
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            System.err.println("finishBattle() doesn't work");
+            System.err.println("updateWinner() doesn't work");
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
+        }
+    }
+
+    public Collection<BattleRound> getBattleLog(Battle battle, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    SELECT battle_round_id,
+                        cardA.card_name,
+                        cardA.card_dmg,
+                        cardB.card_name,
+                        cardB.card_dmg,
+                        cardW.card_name,
+                        cardW.card_dmg
+                    FROM battle_round
+                        JOIN card cardA ON battle_round_card_a_id = cardA.card_id
+                        JOIN card cardB ON battle_round_card_b_id = cardB.card_id
+                        JOIN card cardW ON battle_round_winner_card_id = cardW.card_id
+                    WHERE battle_round_battle_id = ?;
+                             """)) {
+            preparedStatement.setInt(1, battle.getBattle_id());
+            ResultSet resultSet = preparedStatement.executeQuery();
+            Collection<BattleRound> battleRoundRows = new ArrayList<>();
+
+            while(resultSet.next()) {
+                BattleRound battleRound = new BattleRound(
+                        resultSet.getString(1),
+                        resultSet.getInt(2),
+                        resultSet.getString(3),
+                        resultSet.getInt(4),
+                        resultSet.getString(5),
+                        resultSet.getInt(6));
+                battleRoundRows.add(battleRound);
+            }
+            return battleRoundRows;
+        } catch (SQLException e) {
+            System.err.println("getBattleLog() doesn't work");
+            throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
         }
     }
 }

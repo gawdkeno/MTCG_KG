@@ -4,7 +4,6 @@ import at.fhtw.httpserver.http.HttpStatus;
 import at.fhtw.sampleapp.dal.DataAccessException;
 import at.fhtw.sampleapp.dal.UnitOfWork;
 import at.fhtw.sampleapp.model.Battle;
-import at.fhtw.sampleapp.model.Card;
 import at.fhtw.sampleapp.model.User;
 
 import java.sql.PreparedStatement;
@@ -24,23 +23,18 @@ public class UserRepository {
         }
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    INSERT INTO player VALUES (DEFAULT,?,?,?,?,?,?,?) RETURNING player_id
+                    INSERT INTO player(player_username, player_password, player_token) VALUES (?,?,?)
                 """)) {
-            // TODO: einfach in der DB als Default die Werte von bio, img usw. setzen
             preparedStatement.setString(1, user.getPlayer_username());
             preparedStatement.setString(2, user.getPlayer_password());
-            preparedStatement.setInt(3, user.getPlayer_coins());
-            preparedStatement.setString(4, user.getPlayer_token());
-            preparedStatement.setString(5, user.getPlayer_bio());
-            preparedStatement.setString(6, user.getPlayer_image());
-            preparedStatement.setString(7, user.getPlayer_name());
+            preparedStatement.setString(3, user.getPlayer_token());
 
-            ResultSet resultSet = preparedStatement.executeQuery();
-            // TODO: bringt mir nichts glaub ich
-            if (resultSet.next())
-            {
-                user.setPlayer_id(resultSet.getInt(1));
-            }
+            preparedStatement.executeUpdate();
+//            ResultSet resultSet = preparedStatement.executeQuery();
+//            if (resultSet.next())
+//            {
+//                user.setPlayer_id(resultSet.getInt(1));
+//            }
 
             return HttpStatus.CREATED;
 
@@ -85,12 +79,12 @@ public class UserRepository {
         return -1;
     }
 
-    public String getPlayerUserName(String currentToken, UnitOfWork unitOfWork) {
+    public String getPlayerUserName(int playerId, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT player_username FROM player WHERE player_token = ?
+                    SELECT player_username FROM player WHERE player_id = ?
                 """)) {
-            preparedStatement.setString(1,currentToken);
+            preparedStatement.setInt(1,playerId);
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next())
             {
@@ -103,10 +97,10 @@ public class UserRepository {
         return null;
     }
 
-    public Collection getUserData(String username, UnitOfWork unitOfWork) {
+    public Collection<User> getUserData(String username, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT player_username, player_coins, player_bio, player_image, player_name FROM player WHERE player_username = ? 
+                    SELECT player_username, player_coins, player_bio, player_image, player_name FROM player WHERE player_username = ?
                 """)) {
 
             preparedStatement.setString(1, username);
@@ -135,7 +129,7 @@ public class UserRepository {
                      unitOfWork.prepareStatement("""
                     UPDATE player SET player_name = ?,
                                       player_bio = ?,
-                                      player_image = ? WHERE player_username =?; 
+                                      player_image = ? WHERE player_username =?;
                 """)) {
             preparedStatement.setString(1, user.getPlayer_name());
             preparedStatement.setString(2, user.getPlayer_bio());
@@ -211,14 +205,14 @@ public class UserRepository {
                 // winner
                 preparedStatement.setInt(2, 1);
                 preparedStatement.setInt(3, 0);
-                preparedStatement.setInt(4, 3);
+                preparedStatement.setInt(4, 17);
                 preparedStatement.setInt(5, battle.getBattle_winner_id());
                 preparedStatement.executeUpdate();
 
                 // loser
                 preparedStatement.setInt(2, 0);
                 preparedStatement.setInt(3, 1);
-                preparedStatement.setInt(4, -5);
+                preparedStatement.setInt(4, -14);
                 if (battle.getBattle_player_a_id() == battle.getBattle_winner_id()) {
                     preparedStatement.setInt(5, battle.getBattle_player_b_id());
                 } else if (battle.getBattle_player_b_id() == battle.getBattle_winner_id()) {
@@ -227,7 +221,7 @@ public class UserRepository {
             }
             // draw
             else {
-                preparedStatement.setInt(2, 1);
+                preparedStatement.setInt(2, 0);
                 preparedStatement.setInt(3, 0);
                 preparedStatement.setInt(4, 0);
                 preparedStatement.setInt(5, battle.getBattle_player_a_id());

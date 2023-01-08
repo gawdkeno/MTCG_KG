@@ -59,36 +59,68 @@ public class BattleController extends Controller {
                         unitOfWork.commitTransaction();
                     }
                     unitOfWork.commitTransaction();
-                    // TODO: log of battle
-//                    if (startBattle(battle, unitOfWork)){
-//                        this.battleRepository.setWinner(battle, unitOfWork);
-//                    }else{
-//                        //draw
-//                        battleRepo.setWinner(battle, unitOfWork);
-//                        //update total played games
-//                        new StatsRepo().updateTotal(battle.getPlayerA(), unitOfWork);
-//                        new StatsRepo().updateTotal(battle.getPlayerB(), unitOfWork);
-//                    }
-//                }else{
-//                    waitForBattle(battle, unitOfWork);
+                    return new Response(
+                            HttpStatus.OK,
+                            ContentType.JSON,
+                            "{ \"message\":\"Success, battle concluded\" }"
+                    );
+                }else{
+                    startQueue(battle, unitOfWork);
+                    return new Response(
+                            HttpStatus.OK,
+                            ContentType.JSON,
+                            "{ \"message\":\"Success, you are now queued\" }"
+                    );
                 }
+//                Collection<BattleRound> battleLogRaw = this.battleRepository.getBattleLog(battle, unitOfWork);
+//                List<BattleRound> battleLog = new ArrayList<>(battleLogRaw);
             }
         } catch (Exception e) {
             unitOfWork.rollbackTransaction();
-            throw new RuntimeException(e);
+            return new Response(
+                    HttpStatus.INTERNAL_SERVER_ERROR,
+                    ContentType.JSON,
+                    "{ \"message\":\"Failed, something went wrong\" }"
+            );
         }
-        return null;
+    }
+
+    private void startQueue(Battle battle, UnitOfWork unitOfWork) {
+        // ???
     }
 
     private int startBattle(Battle battle, UnitOfWork unitOfWork) {
+        String playerAName = this.userRepository.getPlayerUserName(battle.getBattle_player_a_id(), unitOfWork);
+        String playerBName = this.userRepository.getPlayerUserName(battle.getBattle_player_b_id(), unitOfWork);
         Collection<Card> deckDataA = this.cardRepository.getDeck(battle.getBattle_player_a_id(), unitOfWork);
         Collection<Card> deckDataB = this.cardRepository.getDeck(battle.getBattle_player_b_id(), unitOfWork);
         List<Card> deckPlayerA = new ArrayList<>(deckDataA);
         List<Card> deckPlayerB = new ArrayList<>(deckDataB);
+        Card cardA = null;
+        Card cardB = null;
+        Card previousCardA = null;
+        Card previousCardB = null;
 
-        for (int round = 0; round < 100; ++round) {
-            Card cardA = deckPlayerA.get(new Random().nextInt(deckPlayerA.size()));
-            Card cardB = deckPlayerB.get(new Random().nextInt(deckPlayerB.size()));
+        for (int round = 1; round < 101; ++round) {
+            // unique feature: can't use the same card two times in a row if you have card number advantage
+            if (deckPlayerA.size() > 4) {
+                while (cardA == previousCardA) {
+                    cardA = deckPlayerA.get(new Random().nextInt(deckPlayerA.size()));
+                }
+            }
+            else {
+                cardA = deckPlayerA.get(new Random().nextInt(deckPlayerA.size()));
+            }
+            if (deckPlayerB.size() > 4) {
+                while (cardB == previousCardB) {
+                    cardB = deckPlayerB.get(new Random().nextInt(deckPlayerB.size()));
+                }
+            }
+            else {
+                cardB = deckPlayerB.get(new Random().nextInt(deckPlayerB.size()));
+            }
+            previousCardA = cardA;
+            previousCardB = cardB;
 
             Card roundWinner = battleRound(cardA, cardB);
             if (roundWinner.equals(cardA)) {
@@ -98,17 +130,40 @@ public class BattleController extends Controller {
                 deckPlayerA.remove(cardA);
                 deckPlayerB.add(cardA);
             }
+            System.out.println("\n----------------------------------------------------------------\n");
+
+            System.out.println("Round " + round);
+            System.out.println("'" + playerAName + "' plays " + cardA.getCard_name() + " (" + cardA.getCard_element() + ") with [" + cardA.getCard_dmg() + "] DMG");
+            System.out.println("'" + playerBName + "' plays " + cardB.getCard_name() + " (" + cardB.getCard_element() + ") with [" + cardB.getCard_dmg() + "] DMG\n");
+            if (roundWinner.equals(cardA)) {
+                System.out.println("'" + playerAName + "' wins\n");
+            } else if (roundWinner.equals(cardB)) {
+                System.out.println("'" + playerBName + "' wins\n");
+            } else {
+                System.out.println("Both cards are equally strong. It's a Draw\n");
+            }
+            System.out.println("'" + playerAName + "' now has " + deckPlayerA.size() + " cards in his deck");
+            System.out.println("'" + playerBName + "' now has " + deckPlayerB.size() + " cards in his deck");
+
             this.battleRepository.addBattleRound(cardA, cardB, roundWinner, battle, unitOfWork);
             if (deckPlayerA.isEmpty() || deckPlayerB.isEmpty()) {
+                System.out.println("*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+");
                 if (deckPlayerA.isEmpty()) {
                     battle.setBattle_winner_id(battle.getBattle_player_b_id());
+                    System.out.println("                     '" + playerBName + "' wins");
                 } else if (deckPlayerB.isEmpty()) {
                     battle.setBattle_winner_id(battle.getBattle_player_a_id());
+                    System.out.println("                     '" + playerAName + "' wins");
                 }
+                System.out.println("*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+*+");
+                System.out.println("\n----------------------------------------------------------------\n");
                 this.userRepository.updateUserStats(battle, unitOfWork);
                 return battle.getBattle_winner_id();
             }
         }
+        System.out.println("More than 100 rounds were played, match has finished");
+        System.out.println("\n----------------------------------------------------------------\n");
+
         this.userRepository.updateUserStats(battle, unitOfWork);
         return -1;
     }
@@ -123,8 +178,8 @@ public class BattleController extends Controller {
         }
     }
 
-    private Card fight(Card cardA, Card cardB, boolean specialFight) {
-        if (!specialFight) {
+    private Card fight(Card cardA, Card cardB, boolean elementRelevance) {
+        if (!elementRelevance) {
             if (cardA.getCard_dmg() > cardB.getCard_dmg())
                 return cardA;
             if (cardA.getCard_dmg() < cardB.getCard_dmg())
@@ -133,13 +188,11 @@ public class BattleController extends Controller {
                 return new Card(null, "Draw", 0);
         }
 
-        boolean cardBAdvantage = false;
-        if ((cardB.getCard_element().equals("fire") && cardA.getCard_element().equals("normal")) ||
+        boolean cardBAdvantage =
+                (cardB.getCard_element().equals("fire") && cardA.getCard_element().equals("normal")) ||
                 (cardB.getCard_element().equals("water") && cardA.getCard_element().equals("fire")) ||
-                (cardB.getCard_element().equals("normal") && cardA.getCard_element().equals("water")))
-        {
-            cardBAdvantage = true;
-        }
+                (cardB.getCard_element().equals("normal") && cardA.getCard_element().equals("water"));
+
         if (cardBAdvantage) {
             if (cardA.getCard_dmg() / 2 > cardB.getCard_dmg() * 2)
                 return cardA;

@@ -1,7 +1,6 @@
 package at.fhtw.sampleapp.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 public class User {
     private int player_id;
@@ -44,6 +43,11 @@ public class User {
         this.player_username = player_username;
         this.player_elo = player_elo;
     }
+
+    public int getPlayer_id() {
+        return player_id;
+    }
+
     public void setPlayer_id(int player_id) {
         this.player_id = player_id;
     }
@@ -68,14 +72,6 @@ public class User {
         this.player_username = username;
         this.player_password = password;
     }
-
-    public int getPlayer_id() {
-        return player_id;
-    }
-
-//    public void setPlayer_id(int player_id) {
-//        this.player_id = player_id;
-//    }
 
     public int getPlayer_coins() {
         return player_coins;

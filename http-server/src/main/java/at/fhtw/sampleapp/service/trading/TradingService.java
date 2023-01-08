@@ -1,4 +1,4 @@
-package at.fhtw.sampleapp.service.card;
+package at.fhtw.sampleapp.service.trading;
 
 import at.fhtw.httpserver.http.ContentType;
 import at.fhtw.httpserver.http.HttpStatus;
@@ -7,22 +7,19 @@ import at.fhtw.httpserver.server.Request;
 import at.fhtw.httpserver.server.Response;
 import at.fhtw.httpserver.server.Service;
 
-public class CardService implements Service {
-    private final CardController cardController;
+public class TradingService implements Service {
+    private final TradingController tradingController;
 
-    public CardService(){
-        this.cardController = new CardController();
+    public TradingService() {
+        this.tradingController = new TradingController();
     }
 
     @Override
     public Response handleRequest(Request request) {
-        if (request.getMethod() == Method.GET) {
-            return this.cardController.showCards(request);
-        }
         return new Response(
-                HttpStatus.BAD_REQUEST,
+                HttpStatus.NOT_IMPLEMENTED,
                 ContentType.JSON,
-                "[]"
+                "Failed, not implemented yet"
         );
     }
 }

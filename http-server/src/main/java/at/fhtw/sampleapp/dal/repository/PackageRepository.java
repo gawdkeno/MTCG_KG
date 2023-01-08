@@ -62,10 +62,10 @@ public class PackageRepository {
         }
     }
 
-    public int selectPackage(Pckg pckg, UnitOfWork unitOfWork) {
+    public int selectPackage(UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT * FROM package LIMIT 1 
+                    SELECT * FROM package LIMIT 1
                 """)) {
 
             ResultSet resultSet = preparedStatement.executeQuery();
@@ -84,7 +84,7 @@ public class PackageRepository {
     public int checkCoins(String currentToken, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
-                    SELECT player_coins FROM player WHERE player_token LIKE ? 
+                    SELECT player_coins FROM player WHERE player_token LIKE ?
                 """)) {
 
             preparedStatement.setString(1, currentToken);
@@ -124,7 +124,6 @@ public class PackageRepository {
                     UPDATE player SET player_coins = ? WHERE player_id = ?
                 """))
         {
-            // TODO: get package price '5' from package table and not hard coded
             preparedStatement.setInt(1, playerCoins - 5);
             preparedStatement.setInt(2, player_id);
 

@@ -23,8 +23,8 @@ public class CardRepository {
             preparedStatement.setInt(1, playerId);
             ResultSet resultSet = preparedStatement.executeQuery();
             Collection<Card> cardRows = new ArrayList<>();
-            while(resultSet.next())
-            {
+
+            while(resultSet.next()) {
                 Card card = new Card(
                         resultSet.getInt(1),
                         resultSet.getString(2),
@@ -35,7 +35,7 @@ public class CardRepository {
             }
             return cardRows;
         } catch (SQLException e) {
-            System.err.println("getCards() doesn't work");
+            System.err.println("getCardsWithId() doesn't work");
             throw new DataAccessException("SELECT NICHT ERFOLGREICH", e);
         }
     }
@@ -72,14 +72,12 @@ public class CardRepository {
     }
 
     public HttpStatus updateCardsInDeck(int playerId, List<String> cardCodeIds, UnitOfWork unitOfWork) {
+        unsetCurrentDeck(playerId, unitOfWork);
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     UPDATE card SET card_in_deck = ? WHERE card_code_id IN (?,?,?,?) AND card_player_id = ?
                 """))
         {
-            // TODO: !!!UNSET TRUE IF NEW DECK GETS CONFIGURED
-            // TODO: return error message when same deck wants to be configured
-
             preparedStatement.setBoolean(1, true);
             preparedStatement.setString(2, cardCodeIds.get(0));
             preparedStatement.setString(3, cardCodeIds.get(1));
@@ -93,6 +91,24 @@ public class CardRepository {
             }
 
             return HttpStatus.OK;
+        } catch (SQLException e) {
+            System.err.println("putCardsInDeck() doesn't work");
+            throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
+        }
+    }
+
+    private void unsetCurrentDeck(int playerId, UnitOfWork unitOfWork) {
+        try (PreparedStatement preparedStatement =
+                     unitOfWork.prepareStatement("""
+                    UPDATE card SET card_in_deck = ? WHERE card_in_deck = ? AND card_player_id = ?
+                """))
+        {
+            preparedStatement.setBoolean(1, false);
+            preparedStatement.setBoolean(2, true);
+            preparedStatement.setInt(3, playerId);
+
+            preparedStatement.executeUpdate();
+            // TODO: maybe check if only 4 cards were unset
         } catch (SQLException e) {
             System.err.println("putCardsInDeck() doesn't work");
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);

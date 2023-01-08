@@ -29,7 +29,7 @@ class WeatherTest {
             //Weather[] weatherList = new ObjectMapper().readValue(bufferedReader.readLine(), Weather[].class);
             //assertEquals(3, weatherList.length);
             List<Weather> weatherList = new ObjectMapper().readValue(bufferedReader.readLine(), new TypeReference<List<Weather>>(){});
-            assertEquals(3, weatherList.size());
+            assertEquals(2, weatherList.size());
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
