@@ -38,7 +38,7 @@ public class DeckController extends Controller {
             if (deckData == null) {
                 unitOfWork.rollbackTransaction();
                 return new Response(
-                        HttpStatus.CONFLICT,
+                        HttpStatus.BAD_REQUEST,
                         ContentType.JSON,
                         "{ \"message\" : \"You have no deck configured\" }"
                 );
@@ -84,7 +84,6 @@ public class DeckController extends Controller {
             if(cardCodeIds.size() != 4){
                 unitOfWork.rollbackTransaction();
                 return new Response(
-
                         HttpStatus.BAD_REQUEST,
                         ContentType.JSON,
                         "{ \"message\" : \"Failed, You need 4 cards in your deck\" }"
@@ -99,12 +98,12 @@ public class DeckController extends Controller {
                         ContentType.JSON,
                         "{ \"message\": \"Success, cards added to deck\" }"
                 );
-            } else if (httpStatus == HttpStatus.CONFLICT) {
+            } else {
                 unitOfWork.rollbackTransaction();
                 return new Response(
-                        HttpStatus.CONFLICT,
+                        HttpStatus.FORBIDDEN,
                         ContentType.JSON,
-                        "{ \"message\": \"Failed, you don't own one or more cards, or you didn't select enough\" }"
+                        "{ \"message\": \"Failed, you don't own one or more cards\" }"
                 );
             }
         } catch (Exception e){
@@ -116,12 +115,6 @@ public class DeckController extends Controller {
                         "{ \"message\" : \"Failed, something went wrong\" }"
                 );
             }
-        unitOfWork.rollbackTransaction();
-        return new Response(
-                HttpStatus.CONFLICT,
-                ContentType.JSON,
-                "{ \"message\" : \"Failed, no cards found with those ID's\" }"
-        );
     }
 
 

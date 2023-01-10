@@ -18,19 +18,19 @@ public class PackageController extends Controller {
         this.packagerepository = new PackageRepository();
     }
     public Response addPackage(Request request) {
-        // CHECK IF (ADMIN-)TOKEN WAS GIVEN
-        if(!(request.getCurrentToken().equals("Basic admin-mtcgToken"))) {
-            return new Response(
-                    HttpStatus.FORBIDDEN,
-                    ContentType.JSON,
-                    "{ \"message\":\"Failed, you don't have the rights to do that\" }"
-            );
-        }
-        else if (request.getCurrentToken() == null) {
+        if (request.getCurrentToken() == null) {
             return new Response(
                     HttpStatus.UNAUTHORIZED,
                     ContentType.JSON,
                     "{ \"message\": \"Failed, no token was given\" }"
+            );
+        }
+        // CHECK IF (ADMIN-)TOKEN WAS GIVEN
+        else if(!(request.getCurrentToken().equals("Basic admin-mtcgToken"))) {
+            return new Response(
+                    HttpStatus.FORBIDDEN,
+                    ContentType.JSON,
+                    "{ \"message\":\"Failed, you don't have the rights to do that\" }"
             );
         }
         UnitOfWork unitOfWork = new UnitOfWork();
@@ -58,7 +58,6 @@ public class PackageController extends Controller {
                     } else {
                         card.setCard_type("monster");
                     }
-                    // set package_id // needed?
                     card.setCard_package_id(pckg.getPackage_id());
 
                     HttpStatus httpStatus = this.packagerepository.postCard(card, unitOfWork);

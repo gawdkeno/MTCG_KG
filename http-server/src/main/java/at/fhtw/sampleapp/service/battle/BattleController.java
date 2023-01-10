@@ -43,7 +43,8 @@ public class BattleController extends Controller {
                 battle = this.battleRepository.getLobby(unitOfWork);
                 this.battleRepository.addUserToLobby(currentPlayerId, battle, unitOfWork);
                 if (battle.getBattle_player_a_id() == battle.getBattle_player_b_id()) {
-                    unitOfWork.rollbackTransaction();
+                    // lobby gets closed
+                    unitOfWork.commitTransaction();
                     return new Response(
                             HttpStatus.BAD_REQUEST,
                             ContentType.JSON,
@@ -168,7 +169,8 @@ public class BattleController extends Controller {
         return -1;
     }
 
-    private Card battleRound(Card cardA, Card cardB) {
+    // public only for tests
+    public Card battleRound(Card cardA, Card cardB) {
         if (cardA.getCard_name().equals(cardB.getCard_name())) {
             return fight(cardA, cardB, false);
         } else if (cardA.getCard_type().equals("monster") && cardB.getCard_type().equals("monster")) {

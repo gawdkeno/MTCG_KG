@@ -98,7 +98,7 @@ public class PackageRepository {
     }
 
     // TODO: move to CardRepo
-    public HttpStatus addCardsToPlayer(int player_id, int selectedPackage_id, UnitOfWork unitOfWork) {
+    public void addCardsToPlayer(int player_id, int selectedPackage_id, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     UPDATE card SET card_player_id = ? WHERE card_package_id = ?
@@ -108,9 +108,6 @@ public class PackageRepository {
             preparedStatement.setInt(2, selectedPackage_id);
 
             preparedStatement.executeUpdate();
-
-            return HttpStatus.OK;
-
         } catch (SQLException e) {
             System.err.println("addCardsToPlayer() doesn't work");
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
@@ -118,7 +115,7 @@ public class PackageRepository {
     }
 
     // TODO: move to PlayerRepo
-    public HttpStatus reducePlayerCoins(int playerCoins, int player_id, UnitOfWork unitOfWork) {
+    public void reducePlayerCoins(int playerCoins, int player_id, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     UPDATE player SET player_coins = ? WHERE player_id = ?
@@ -128,16 +125,13 @@ public class PackageRepository {
             preparedStatement.setInt(2, player_id);
 
             preparedStatement.executeUpdate();
-
-            return HttpStatus.OK;
-
         } catch (SQLException e) {
-            System.err.println("addCardsToPlayer() doesn't work");
+            System.err.println("reducePlayerCoins() doesn't work");
             throw new DataAccessException("UPDATE NICHT ERFOLGREICH", e);
         }
     }
 
-    public HttpStatus deletePackage(int package_id, UnitOfWork unitOfWork) {
+    public void deletePackage(int package_id, UnitOfWork unitOfWork) {
         try (PreparedStatement preparedStatement =
                      unitOfWork.prepareStatement("""
                     DELETE FROM package WHERE package_id = ?
@@ -146,11 +140,8 @@ public class PackageRepository {
             preparedStatement.setInt(1, package_id);
 
             preparedStatement.executeUpdate();
-
-            return HttpStatus.OK;
-
         } catch (SQLException e) {
-            System.err.println("addCardsToPlayer() doesn't work");
+            System.err.println("deletePackage() doesn't work");
             throw new DataAccessException("DELETE NICHT ERFOLGREICH", e);
         }
     }

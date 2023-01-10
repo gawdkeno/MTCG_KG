@@ -28,59 +28,44 @@ public class TransactionController {
         }
         UnitOfWork unitOfWork = new UnitOfWork();
 
-        int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
-        int selectedPackage_id = this.packagerepository.selectPackage(unitOfWork);
-        // if there are no packs
-        if (selectedPackage_id < 0) {
-            unitOfWork.rollbackTransaction();
+        try {
+            int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
+            int selectedPackage_id = this.packagerepository.selectPackage(unitOfWork);
+            // if there are no packs
+            if (selectedPackage_id < 0) {
+                unitOfWork.rollbackTransaction();
+                return new Response(
+                        HttpStatus.NOT_FOUND,
+                        ContentType.JSON,
+                        "{ \"message\":\"Failed, no packs to buy\" }"
+                );
+            }
+            int playerCoins = this.packagerepository.checkCoins(currentToken, unitOfWork);
+            // if player can't buy any packs
+            if (playerCoins < 5) {
+                unitOfWork.rollbackTransaction();
+                return new Response(
+                        HttpStatus.FORBIDDEN,
+                        ContentType.JSON,
+                        "{ \"message\":\"Failed, you're broke G\" }"
+                );
+            }
+            this.packagerepository.addCardsToPlayer(player_id, selectedPackage_id, unitOfWork);
+            this.packagerepository.reducePlayerCoins(playerCoins, player_id, unitOfWork);
+            this.packagerepository.deletePackage(selectedPackage_id, unitOfWork);
+            unitOfWork.commitTransaction();
             return new Response(
-                    HttpStatus.BAD_REQUEST,
+                    HttpStatus.OK,
                     ContentType.JSON,
-                    "{ \"message\":\"Failed, no packs to buy\" }"
+                    "{ \"message\":\"Success, you bought a Booster-Pack\" }"
             );
-        }
-        int playerCoins = this.packagerepository.checkCoins(currentToken, unitOfWork);
-        // if player can't buy any packs
-        if (playerCoins < 5) {
-            unitOfWork.rollbackTransaction();
-            return new Response(
-                    HttpStatus.BAD_REQUEST,
-                    ContentType.JSON,
-                    "{ \"message\":\"Failed, you're broke G\" }"
-            );
-        }
-        HttpStatus httpStatus = this.packagerepository.addCardsToPlayer(player_id, selectedPackage_id, unitOfWork);
-        if (httpStatus != HttpStatus.OK) {
-            unitOfWork.rollbackTransaction();
-            return new Response(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    ContentType.JSON,
-                    "{ \"message\":\"Failed, couldn't add cards to player\" }"
-            );
-        }
-        httpStatus = this.packagerepository.reducePlayerCoins(playerCoins, player_id, unitOfWork);
-        if (httpStatus != HttpStatus.OK) {
-            unitOfWork.rollbackTransaction();
-            return new Response(
-                    HttpStatus.INTERNAL_SERVER_ERROR,
-                    ContentType.JSON,
-                    "{ \"message\":\"Failed, couldn't reduce coins\" }"
-            );
-        }
-        httpStatus = this.packagerepository.deletePackage(selectedPackage_id, unitOfWork);
-        if (httpStatus != HttpStatus.OK) {
+        } catch (Exception e) {
             unitOfWork.rollbackTransaction();
             return new Response(
                     HttpStatus.INTERNAL_SERVER_ERROR,
                     ContentType.JSON,
-                    "{ \"message\":\"Failed, couldn't delete package\" }"
+                    "{ \"message\":\"Failed, something went wrong\" }"
             );
         }
-        unitOfWork.commitTransaction();
-        return new Response(
-                HttpStatus.OK,
-                ContentType.JSON,
-                "{ \"message\":\"Success, you bought a Booster-Pack\" }"
-        );
     }
 }

@@ -87,7 +87,7 @@ public class CardRepository {
 
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows != 4) {
-                return HttpStatus.CONFLICT;
+                return HttpStatus.FORBIDDEN;
             }
 
             return HttpStatus.OK;

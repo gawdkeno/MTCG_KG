@@ -35,7 +35,7 @@ public class SessionController extends Controller {
                     return new Response(
                             HttpStatus.UNAUTHORIZED,
                             ContentType.JSON,
-                            "{ \"message\": \"Invalid username or password\" }"
+                            "{ \"message\": \"Failed, invalid username or password\" }"
                     );
                 }
                 default -> {
@@ -43,7 +43,7 @@ public class SessionController extends Controller {
                     return new Response(
                             HttpStatus.INTERNAL_SERVER_ERROR,
                             ContentType.JSON,
-                            "{ \"message\": \"Something went wrong\" }"
+                            "{ \"message\": \"Failed, something went wrong\" }"
                     );
                 }
             }

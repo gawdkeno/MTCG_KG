@@ -71,7 +71,7 @@ public class UserController extends Controller {
         String username = getAuthorizedUsername(request, unitOfWork);
         if (username == null) {
             return new Response(
-                    HttpStatus.FORBIDDEN,
+                    HttpStatus.UNAUTHORIZED,
                     ContentType.JSON,
                     "{ \"message\": \"Failed, you are not allowed to do that\" }"
             );
@@ -128,7 +128,7 @@ public class UserController extends Controller {
         if (username == null) {
             unitOfWork.rollbackTransaction();
             return new Response(
-                    HttpStatus.FORBIDDEN,
+                    HttpStatus.UNAUTHORIZED,
                     ContentType.JSON,
                     "{ \"message\": \"Failed, you are not allowed to do that\" }"
             );

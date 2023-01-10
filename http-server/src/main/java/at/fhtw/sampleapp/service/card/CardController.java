@@ -34,6 +34,15 @@ public class CardController extends Controller {
         try (unitOfWork){
             int player_id = this.userRepository.getPlayerId(currentToken, unitOfWork);
             Collection<Card> cardData = this.cardRepository.getCardsWithId(player_id, unitOfWork);
+            if (cardData.isEmpty()) {
+                unitOfWork.rollbackTransaction();
+                return new Response(
+                        // NO_CONTENT DOESN'T WORK
+                        HttpStatus.BAD_REQUEST,
+                        ContentType.JSON,
+                        "{ \"message\": \"You have no cards\" }"
+                );
+            }
             String cardDataJSON = this.getObjectMapper().writeValueAsString(cardData);
 
             unitOfWork.commitTransaction();
